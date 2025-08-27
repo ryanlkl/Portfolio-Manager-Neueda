@@ -8,6 +8,7 @@ const app = express();
 // Routers
 app.use("/accounts", accountRoutes)
 app.use("/auth", authRoutes)
+app.use("/assets", assetRoutes)
 
 //Middleware
 app.use(express.json())
