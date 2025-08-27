@@ -4,6 +4,7 @@ const accountRoutes = require("./routes/accounts")
 const authRoutes = require("./routes/auth")
 
 const assetRoutes = require("./routes/assets")
+const portfolioRoutes = require("./routes/portfolio")
 
 const app = express();
 
@@ -11,6 +12,8 @@ const app = express();
 app.use("/accounts", accountRoutes)
 app.use("/assets", assetRoutes)
 app.use("/auth", authRoutes)
+app.use("/portfolio", portfolioRoutes)
+
 
 //Middleware
 app.use(express.json())
