@@ -3,7 +3,6 @@ const { assignRequestTime, logger } = require("./middleware/logging")
 const accountRoutes = require("./routes/accounts")
 const authRoutes = require("./routes/auth")
 const { sequelize } = require("./config/mysql")
-
 const assetRoutes = require("./routes/assets")
 const portfolioRoutes = require("./routes/portfolio")
 
