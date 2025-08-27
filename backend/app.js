@@ -2,6 +2,7 @@ const express = require("express");
 const { assignRequestTime, logger } = require("./middleware/logging")
 const accountRoutes = require("./routes/accounts")
 const authRoutes = require("./routes/auth")
+const { sequelize } = require("./config/mysql")
 
 const assetRoutes = require("./routes/assets")
 const portfolioRoutes = require("./routes/portfolio")
@@ -19,6 +20,16 @@ app.use("/portfolio", portfolioRoutes)
 app.use(express.json())
 app.use(assignRequestTime)
 app.use(logger)
+
+// Database
+sequelize
+    .sync()
+    .then(() => {
+        console.log("Database synced");
+    })
+    .catch((err) => {
+        console.error("Failed to sync database: ", err)
+    })
 
 app.get("/", (req, res) => res.json({message: "API is running"}));
 
