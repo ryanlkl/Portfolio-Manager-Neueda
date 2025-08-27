@@ -1,7 +1,11 @@
 const express = require("express");
 const { assignRequestTime, logger } = require("./middleware/logging")
+const accountRoutes = require("./routes/accounts")
 
 const app = express();
+
+// Routers
+app.use("/accounts", accountRoutes)
 
 app.use(express.json())
 
