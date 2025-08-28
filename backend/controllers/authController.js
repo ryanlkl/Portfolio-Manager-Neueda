@@ -53,12 +53,10 @@ const logInUser = async (req, res) => {
             })
         }
 
-        const token = createJWT(user.id, user.name)
+        const token = await createJWT(user.id, user.name)
 
         res.status(201)
-        .writeHead(200, {
-            "Set-Cookie": `token=${token}; HttpOnly`,
-        })
+        .cookie("access_token", token, {httpOnly: true})
         .json({
             message: "Success",
             user: user
@@ -76,9 +74,7 @@ const registerUser = async (req, res) => {
 
     // Create User logic
     try {
-        console.log("Creating user...")
         const hashedPassword = await encodePassword(password);
-        console.log(hashedPassword)
         
         newUser = await User.create({
             id: uuidv4(),
@@ -87,22 +83,18 @@ const registerUser = async (req, res) => {
             passwordHash: hashedPassword
         })
         
-        console.log("User: ", newUser)
     } catch (err) {
         res.status(400).json({
-            error: "Failed to create user",
-            error:err
+            status: "Failed to create user",
+            error: err
         })
     }
 
-    console.log("New User: ", newUser)
-    const token = createJWT(newUser.id, newUser.name)
+    const token = await createJWT(newUser.id, newUser.name)
 
     return res
         .status(201)
-        .writeHead(200, {
-            "Set-Cookie": `token=${token}; HttpOnly`,
-        })
+        .cookie("access_token", token, {httpOnly: true})
         .json({
         message: "Successfully created"
     })

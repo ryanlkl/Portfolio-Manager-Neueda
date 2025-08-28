@@ -8,22 +8,12 @@ const Stocks = sequelize.define("stocks", {
     primaryKey: true,
   },
 
-  stockName: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-  },
-
   ticker: {
     type: DataTypes.STRING(50),
     allowNull: false,
   },
 
   quantity: {
-    type: DataTypes.FLOAT(24),
-    allowNull: false
-  },
-
-  purchasePrice: {
     type: DataTypes.FLOAT(24),
     allowNull: false
   },
