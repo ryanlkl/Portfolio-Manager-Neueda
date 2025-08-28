@@ -2,7 +2,7 @@ const Portfolio = require("../models/portfolio");
 require("dotenv").config();
 
 // Get the user's portfolio
-exports.getUserPortfolio = async (req, res) => {
+const getUserPortfolio = async (req, res) => {
   try {
     const userId = req.user.id;
     const portfolio = await Portfolio.findOne({ where: { user_id: userId } });
@@ -16,7 +16,7 @@ exports.getUserPortfolio = async (req, res) => {
 };
 
 // Create a portfolio
-exports.createPortfolio = async (req, res) => {
+const createPortfolio = async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -35,7 +35,7 @@ exports.createPortfolio = async (req, res) => {
 };
 
 // Update the portfolio
-exports.updatePortfolio = async (req, res) => {
+const updatePortfolio = async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -53,7 +53,7 @@ exports.updatePortfolio = async (req, res) => {
 };
 
 // Delete the portfolio
-exports.deletePortfolio = async (req, res) => {
+const deletePortfolio = async (req, res) => {
   try {
     const userId = req.user.id;
     const deleted = await Portfolio.destroy({ where: { user_id: userId } });
@@ -65,3 +65,10 @@ exports.deletePortfolio = async (req, res) => {
     res.status(500).json({ error: "Error when deleting portfolio" });
   }
 };
+
+module.exports = {
+  getUserPortfolio,
+  createPortfolio,
+  updatePortfolio,
+  deletePortfolio
+}

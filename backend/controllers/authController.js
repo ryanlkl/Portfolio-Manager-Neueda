@@ -2,8 +2,9 @@ const jwt = require("jsonwebtoken")
 const { JWT_SECRET } = require("../config")
 const User = require("../models/users")
 const bcrypt = require("bcrypt");
+const { v4: uuidv4 } = require("uuid");
 
-const createJWT = (id, name) => {
+const createJWT = async (id, name) => {
     const payload = {
         id: id,
         name: name
@@ -14,38 +15,15 @@ const createJWT = (id, name) => {
     return token;
 }
 
-const encodePassword = (password) => {
-    bcrypt.genSalt(10, (err, salt) => {
-        if (err) {
-            console.error("Error generating salt")
-            return
-        }
-
-        bcrypt.hash(password, salt, (err, hash) => {
-            if (err) {
-                console.error("Error hashing password")
-                return
-            };
-
-            return hash
-        })
-    });
+const encodePassword = async (password) => {
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+    return hash;
 
 }
 
-const passwordsMatch = (inputPassword, hashedPassword) => {
-    bcrypt.compare(inputPassword, hashedPassword, (err, result) => {
-        if (err) {
-            console.error("Error comparing passwords: ", err);
-            return
-        }
-
-        if (result) {
-            return true;
-        } else {
-            return false
-        }
-    })
+const passwordsMatch = async (inputPassword, hashedPassword) => {
+    return await bcrypt.compare(inputPassword, hashedPassword);
 }
 
 const logInUser = async (req, res) => {
@@ -53,13 +31,21 @@ const logInUser = async (req, res) => {
 
     // Find User Logic
     try {
-        const user = await User.findAll({
+        const users = await User.findAll({
             where: {
                 email: email
             }
         })
 
-        const match = passwordsMatch(password, user.password_hash)
+        const user = users[0];
+
+        if (!user) {
+            return res.status(401).json({
+                error: "Invalid credentials"
+            })
+        }
+
+        const match = await passwordsMatch(password, user.passwordHash)
 
         if (!match) {
             res.status(401).json({
@@ -67,10 +53,15 @@ const logInUser = async (req, res) => {
             })
         }
 
-        const token = createJWT(user.id, user.username)
+        const token = createJWT(user.id, user.name)
 
-        res.status(201).json({
-            message: "Success"
+        res.status(201)
+        .writeHead(200, {
+            "Set-Cookie": `token=${token}; HttpOnly`,
+        })
+        .json({
+            message: "Success",
+            user: user
         })
     } catch (err) {
         console.error("Error logging in user: ", err)
@@ -80,31 +71,39 @@ const logInUser = async (req, res) => {
 }
 
 const registerUser = async (req, res) => {
-    const { username, email, password } = req.body;
+    const { email, name, password } = req.body;
+    let newUser
 
     // Create User logic
     try {
-        const newUser = await User.create({
-            username: username,
+        console.log("Creating user...")
+        const hashedPassword = await encodePassword(password);
+        console.log(hashedPassword)
+        
+        newUser = await User.create({
+            id: uuidv4(),
+            name: name,
             email: email,
-            password_hash: encodePassword(password)
+            passwordHash: hashedPassword
         })
-        res.status(201).json(newUser)
+        
+        console.log("User: ", newUser)
     } catch (err) {
         res.status(400).json({
-            error: "Failed to create user"
+            error: "Failed to create user",
+            error:err
         })
     }
 
+    console.log("New User: ", newUser)
+    const token = createJWT(newUser.id, newUser.name)
 
-    res.status(201).json({
-        username: newUser.username,
-        email: newUser.email
-    })
-
-    const token = createJWT(user.id, user.username)
-
-    return res.status(201).json({
+    return res
+        .status(201)
+        .writeHead(200, {
+            "Set-Cookie": `token=${token}; HttpOnly`,
+        })
+        .json({
         message: "Successfully created"
     })
 }
