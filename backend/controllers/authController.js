@@ -59,7 +59,8 @@ const logInUser = async (req, res) => {
         .cookie("access_token", token, {httpOnly: true})
         .json({
             message: "Success",
-            user: user
+            user: user,
+            token: token
         })
     } catch (err) {
         console.error("Error logging in user: ", err)
