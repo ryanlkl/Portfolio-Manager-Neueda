@@ -1,29 +1,27 @@
 const { sequelize } = require("../config/mysql");
+const { DataTypes } = require("sequelize");
 
 const User = sequelize.define("user", {
   id: {
-    type: dataTypes.STRING(36),
+    type: DataTypes.STRING(36),
     allowNull: false,
     primaryKey: true,
   },
 
   name: {
-    type: dataTypes.STRING(50),
+    type: DataTypes.STRING(50),
     allowNull: false,
   },
 
   email: {
-    type: dataTypes.STRING(100),
+    type: DataTypes.STRING(100),
     allowNull: false,
   },
 
-  password_hash: {
-    type: dataTypes.STRING(128),
+  passwordHash: {
+    type: DataTypes.STRING(128),
     allowNull: false,
-  },
-
-  created_at: {
-    type: dataTypes.DATE,
-    allowNull: true,
   },
 });
+
+module.exports = User
