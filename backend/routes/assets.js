@@ -1,13 +1,14 @@
 const express = require("express");
 const stockController = require("../controllers/stockController");
 const assetRoutes = express.Router({mergeParams: true});
+const {authenticateToken} = require("../middleware/auth");
 
 // amount of data will update after talk with customer
-assetRoutes.get("/stocks/", stockController.getAllStocks)
-assetRoutes.get("/stocks/:id", stockController.getStockById)
-assetRoutes.post("/stocks/", stockController.addStock);
-assetRoutes.patch("/stocks/:id", stockController.updateStock);
-assetRoutes.delete("/stocks/:id", stockController.deleteStock);
+assetRoutes.get("/stocks/", authenticateToken, stockController.getAllStocks)
+assetRoutes.get("/stocks/:id", authenticateToken, stockController.getStockById)
+assetRoutes.post("/stocks/", authenticateToken, stockController.addStock);
+assetRoutes.patch("/stocks/:id", authenticateToken, stockController.updateStock);
+assetRoutes.delete("/stocks/:id", authenticateToken, stockController.deleteStock);
 
 
 // assetRoutes.get("/bonds/", assetController.getAllBonds)
