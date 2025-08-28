@@ -1,6 +1,6 @@
 const express = require("express");
 
-const assetController = require("../controllers/assetController");
+const assetController = require("../controllers/stockController");
 const assetRoutes = express.Router();
 
 // amount of data will update after talk with customer
