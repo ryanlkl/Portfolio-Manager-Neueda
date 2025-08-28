@@ -1,18 +1,19 @@
 const express = require("express");
 const { assignRequestTime, logger } = require("./middleware/logging")
-const accountRoutes = require("./routes/accounts")
+// const accountRoutes = require("./routes/accounts")
 const authRoutes = require("./routes/auth")
 const { sequelize } = require("./config/mysql")
-const assetRoutes = require("./routes/assets")
-const portfolioRoutes = require("./routes/portfolio")
+// const assetRoutes = require("./routes/assets")
+// const portfolioRoutes = require("./routes/portfolio")
+require("./models/associations")
 
 const app = express();
 
 // Routers
-app.use("/accounts", accountRoutes)
-app.use("/assets", assetRoutes)
+// app.use("/accounts", accountRoutes)
+// app.use("/assets", assetRoutes)
 app.use("/auth", authRoutes)
-app.use("/portfolio", portfolioRoutes)
+// app.use("/portfolio", portfolioRoutes)
 
 
 //Middleware

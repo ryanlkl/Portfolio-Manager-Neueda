@@ -1,8 +1,7 @@
 const jwt = require("jsonwebtoken")
 const { JWT_SECRET } = require("../config")
-const User = require("../models/userModel")
+const User = require("../models/users")
 const bcrypt = require("bcrypt");
-const { response } = require("express");
 
 const createJWT = (id, name) => {
     const payload = {
@@ -108,4 +107,9 @@ const registerUser = async (req, res) => {
     return res.status(201).json({
         message: "Successfully created"
     })
+}
+
+module.exports = {
+    logInUser,
+    registerUser
 }
