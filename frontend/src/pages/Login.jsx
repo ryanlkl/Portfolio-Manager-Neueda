@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom"; 
 import "../css/Login.css";
+import Layout from "../components/Layout";
+import axios from "axios";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -12,12 +14,21 @@ function Login() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Login data:", formData);
+
+    try {
+      const response = await axios.post("http://localhost:3000/auth/login", formData);
+      const data = response.data
+      console.log(data)
+    } catch (err) {
+      console.error(err)
+    }
   };
 
   return (
+    <Layout>
     <div className="login-container">
       {/* Left Section */}
       <div className="login-left d-flex justify-content-center align-items-center text-center">
@@ -74,6 +85,7 @@ function Login() {
         </div>
       </div>
     </div>
+    </Layout>
   );
 }
 

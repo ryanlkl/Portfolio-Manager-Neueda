@@ -7,12 +7,14 @@ const assetRoutes = require("./routes/assets");
 const portfolioRoutes = require("./routes/portfolio");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
+const cors = require("cors");
 require("./models/associations")
 
 const app = express();
 app.use(express.json())
 
 //Middleware
+app.use(cors());
 app.use(assignRequestTime)
 app.use(logger)
 
