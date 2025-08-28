@@ -3,14 +3,30 @@ const axios = require("axios");
 const { FINNHUB_KEY, FINNHUB_URL } = require("../config");
 const { v4: uuidv4 } = require("uuid");
 
-const calculateTotalValue = async (ticker, quantity) => {
+const calculateStockPerformance = async (ticker, quantity) => {
   const response = await axios.get(FINNHUB_URL, {
     params: { symbol: ticker, token: FINNHUB_KEY}
   });
 
   const price = response.data?.c ?? 0;
 
-  return quantity * price;
+  return {
+    "totalValue": quantity * price,
+    "gainLoss": (currPrice - purchasePrice) * quantity,
+    "percentageGainLoss": ((currPrice - purchasePrice) / purchasePrice) * 100
+  }
+}
+
+const calculatePortfolioTotal = async (stocks) => {
+  let totalValue = 0;
+
+  for (let stock of stocks) {
+    totalValue += stock.totalValue;
+  }
+
+  return {
+    "totalValue": totalValue
+  }
 }
 
 // Get all stocks
@@ -26,16 +42,15 @@ const getAllStocks = async (req, res) => {
       }
     });
 
-    console.log(stocks)
-
     if (!stocks) return res.status(404).json({ error: "No stocks found" });
 
     for (let stock of stocks) {
-      const totalValue = await calculateTotalValue(stock.ticker, stock.quantity);
+      const totalValue = await calculateStockValue(stock.ticker, stock.quantity);
       stock.dataValues.totalValue = totalValue;
     }
 
     res.status(200).json({
+      totalValue: await calculatePortfolioTotal(stocks),
       stocks: stocks
     });
 
@@ -52,7 +67,7 @@ const getStockById = async (req, res) => {
   try {
     const stock = await Stock.findByPk(id);
     if (!stock) return res.status(404).json({ error: "Stock not found" });
-    const totalValue = await calculateTotalValue(stock.ticker, stock.quantity);
+    const totalValue = await calculateStockValue(stock.ticker, stock.quantity);
     stock.dataValues.totalValue = totalValue;
     res.status(200).json(stock);
   } catch (err) {
