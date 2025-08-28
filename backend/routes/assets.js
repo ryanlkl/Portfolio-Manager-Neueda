@@ -1,15 +1,17 @@
 const express = require("express");
-
-const assetController = require("../controllers/stockController");
+const stockController = require("../controllers/stockController");
 const assetRoutes = express.Router();
 
 // amount of data will update after talk with customer
-assetRoutes.get("/stocks/", assetController.getAllStocks)
-assetRoutes.get("/stocks/:id", assetController.getStockInfo)
+assetRoutes.get("/stocks/", stockController.getAllStocks)
+assetRoutes.get("/stocks/:id", stockController.getStockById)
+assetRoutes.post("/stocks/", stockController.addStock);
+assetRoutes.post("/stocks/:id", stockController.updateStock);
+assetRoutes.delete("/stocks/:id", stockController.deleteStock);
 
 
-assetRoutes.get("/bonds/", assetController.getAllBonds)
-assetRoutes.get("/bonds/:id", assetController.getBondInfo)
+// assetRoutes.get("/bonds/", assetController.getAllBonds)
+// assetRoutes.get("/bonds/:id", assetController.getBondInfo)
 
 
 module.exports = assetRoutes

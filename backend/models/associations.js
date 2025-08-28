@@ -4,5 +4,5 @@ const User = require("./users");
 
 User.hasOne(Portfolio);
 Portfolio.belongsTo(User);
-Stocks.hasOne(Portfolio);
-Portfolio.belongsTo(Stocks);
+Portfolio.hasMany(Stocks);
+Stocks.belongsTo(Portfolio);

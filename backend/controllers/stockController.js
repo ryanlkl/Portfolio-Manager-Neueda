@@ -1,15 +1,22 @@
-const Stock = require("../models/stock");
+const Stock = require("../models/stocks");
 const axios = require("axios");
-require("dotenv").config();
-
-const FINNHUB_KEY = process.env.FINNHUB_API_KEY;
-const FINNHUB_URL = "https://finnhub.io/api/v1/quote";
+const { FINNHUB_KEY, FINNHUB_URL } = require("../config");
+const { v4: uuidv4 } = require("uuid");
 
 // Get all stocks
-exports.getAllStocks = async (req, res) => {
+const getAllStocks = async (req, res) => {
+  const { pid } = req.params;
+
   try {
-    const stocks = await Stock.findAll();
-    res.json(stocks);
+    const stocks = await Stock.findAll({
+      where: {
+        portfolioId: pid
+      }
+    });
+
+    res.status(200).json({
+      stocks: stocks
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error in database" });
@@ -17,11 +24,13 @@ exports.getAllStocks = async (req, res) => {
 };
 
 // Get a single stock by ID
-exports.getStockById = async (req, res) => {
+const getStockById = async (req, res) => {
+  const { pid, id } = req.params;
+
   try {
-    const stock = await Stock.findByPk(req.params.id);
+    const stock = await Stock.findByPk(id);
     if (!stock) return res.status(404).json({ error: "Stock not found" });
-    res.json(stock);
+    resstatus(200).json(stock);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error in database" });
@@ -29,18 +38,28 @@ exports.getStockById = async (req, res) => {
 };
 
 // Add a stock
-exports.addStock = async (req, res) => {
+const addStock = async (req, res) => {
+  const { pid } = req.params;
+  
   try {
-    const { stock_name, ticker, quantity } = req.body;
+    const { stockName, ticker, quantity } = req.body;
 
     const response = await axios.get(FINNHUB_URL, {
       params: { symbol: ticker, token: FINNHUB_KEY }
     });
 
     const price = response.data?.c ?? null; // 'c' is the current price
+    
 
-    const stock = await Stock.create({ stock_name, ticker, quantity, price });
-    res.json({ message: "Stock added", stockId: stock.id, price });
+    const stock = await Stock.create({
+      id: uuidv4(),
+      stockName: stockName,
+      ticker: ticker, 
+      quantity: quantity,
+      purchasePrice: price,
+      portfolioId: pid
+    });
+    res.status(201).json({ message: "Stock added", stockId: stock.id, purchasePrice: price });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error adding stock" });
@@ -48,19 +67,20 @@ exports.addStock = async (req, res) => {
 };
 
 // Update stock
-exports.updateStock = async (req, res) => {
+const updateStock = async (req, res) => {
+  const { pid, id } = req.params;
   try {
-    const { stock_name, ticker, quantity } = req.body;
+    const { stockName, ticker, quantity } = req.body;
 
     const response = await axios.get(FINNHUB_URL, {
       params: { symbol: ticker, token: FINNHUB_KEY }
     });
 
-    const price = response.data?.c ?? null;
+    const price = response.data?.c ?? null; // c is the current price
 
     const [updated] = await Stock.update(
-      { stock_name, ticker, quantity, price },
-      { where: { id: req.params.id } }
+      { stockName, ticker, quantity, price },
+      { where: { id: id } }
     );
 
     if (!updated) return res.status(404).json({ error: "Stock not found" });
@@ -72,7 +92,7 @@ exports.updateStock = async (req, res) => {
 };
 
 // Delete a stock
-exports.deleteStock = async (req, res) => {
+const deleteStock = async (req, res) => {
   try {
     const deleted = await Stock.destroy({ where: { id: req.params.id } });
     if (!deleted) return res.status(404).json({ error: "Stock not found" });
@@ -82,3 +102,11 @@ exports.deleteStock = async (req, res) => {
     res.status(500).json({ error: "Error in database" });
   }
 };
+
+module.exports = {
+  addStock,
+  getStockById,
+  getAllStocks,
+  updateStock,
+  deleteStock
+}
