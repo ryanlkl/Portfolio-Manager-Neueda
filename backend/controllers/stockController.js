@@ -3,6 +3,16 @@ const axios = require("axios");
 const { FINNHUB_KEY, FINNHUB_URL } = require("../config");
 const { v4: uuidv4 } = require("uuid");
 
+const calculateTotalValue = async (ticker, quantity) => {
+  const response = await axios.get(FINNHUB_URL, {
+    params: { symbol: ticker, token: FINNHUB_KEY}
+  });
+
+  const price = response.data?.c ?? 0;
+
+  return quantity * price;
+}
+
 // Get all stocks
 const getAllStocks = async (req, res) => {
   const { pid } = req.params;
@@ -14,9 +24,17 @@ const getAllStocks = async (req, res) => {
       }
     });
 
+    if (!stocks) return res.status(404).json({ error: "No stocks found" });
+
+    for (let stock of stocks) {
+      const totalValue = await calculateTotalValue(stock.ticker, stock.quantity);
+      stock.dataValues.totalValue = totalValue;
+    }
+
     res.status(200).json({
       stocks: stocks
     });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error in database" });
@@ -30,7 +48,9 @@ const getStockById = async (req, res) => {
   try {
     const stock = await Stock.findByPk(id);
     if (!stock) return res.status(404).json({ error: "Stock not found" });
-    resstatus(200).json(stock);
+    const totalValue = await calculateTotalValue(stock.ticker, stock.quantity);
+    stock.dataValues.totalValue = totalValue;
+    res.status(200).json(stock);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error in database" });
@@ -49,17 +69,14 @@ const addStock = async (req, res) => {
     });
 
     const price = response.data?.c ?? null; // 'c' is the current price
-    
-
+    const totalValue = calculateTotalValue(ticker, quantity);
     const stock = await Stock.create({
       id: uuidv4(),
-      stockName: stockName,
       ticker: ticker, 
       quantity: quantity,
-      purchasePrice: price,
       portfolioId: pid
     });
-    res.status(201).json({ message: "Stock added", stockId: stock.id, purchasePrice: price });
+    res.status(201).json({ message: "Stock added", stockId: stock.id, purchasePrice: price, portfolioId: pid });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error adding stock" });
@@ -79,12 +96,15 @@ const updateStock = async (req, res) => {
     const price = response.data?.c ?? null; // c is the current price
 
     const [updated] = await Stock.update(
-      { stockName, ticker, quantity, price },
+      { 
+        ticker: ticker,
+        quantity: quantity,
+      },
       { where: { id: id } }
     );
 
     if (!updated) return res.status(404).json({ error: "Stock not found" });
-    res.json({ message: "Stock updated", price });
+    res.status(201).json({ message: "Stock updated", price });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error updating stock" });

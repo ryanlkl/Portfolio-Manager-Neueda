@@ -1,12 +1,12 @@
 const express = require("express");
 const stockController = require("../controllers/stockController");
-const assetRoutes = express.Router();
+const assetRoutes = express.Router({mergeParams: true});
 
 // amount of data will update after talk with customer
 assetRoutes.get("/stocks/", stockController.getAllStocks)
 assetRoutes.get("/stocks/:id", stockController.getStockById)
 assetRoutes.post("/stocks/", stockController.addStock);
-assetRoutes.post("/stocks/:id", stockController.updateStock);
+assetRoutes.patch("/stocks/:id", stockController.updateStock);
 assetRoutes.delete("/stocks/:id", stockController.deleteStock);
 
 
