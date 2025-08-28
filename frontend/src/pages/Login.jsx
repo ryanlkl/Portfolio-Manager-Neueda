@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom"; 
 import "../css/Login.css";
 
 function Login() {
@@ -26,7 +27,15 @@ function Login() {
       {/* Right Section */}
       <div className="login-right d-flex justify-content-center align-items-center">
         <div className="card p-4 login-card">
-          <h3 className="text-center mb-4">Log In</h3>
+          <h3 className="text-center mb-1">Log In</h3>
+
+          <p className="text-muted mb-4" style={{ fontSize: "0.95rem" }}>
+            Need to make a new account?{" "}
+            <Link to="/signup" className="text-decoration-none" style={{ color: "#6d28d9" }}>
+              Sign up
+            </Link>
+          </p>
+
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="form-label" htmlFor="email">Email</label>
