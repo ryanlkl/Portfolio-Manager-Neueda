@@ -57,6 +57,7 @@ const logInUser = async (req, res) => {
     res.status(201).cookie("access_token", token, { httpOnly: true }).json({
       message: "Success",
       user: user,
+      token: token,
     });
   } catch (err) {
     console.error("Error logging in user: ", err);

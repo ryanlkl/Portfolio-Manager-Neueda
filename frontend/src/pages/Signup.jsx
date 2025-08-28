@@ -1,5 +1,8 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import TermsModal from "../components/terms";
 import "../css/Signup.css";
+import "../css/term.css";
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -7,6 +10,8 @@ function Signup() {
     email: "",
     password: "",
   });
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -14,6 +19,7 @@ function Signup() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!acceptedTerms) return;
     console.log("Signup data:", formData);
   };
 
@@ -27,7 +33,13 @@ function Signup() {
       {/* Right Section */}
       <div className="signup-right d-flex justify-content-center align-items-center">
         <div className="card p-4 signup-card">
-          <h3 className="text-center mb-4">Sign Up</h3>
+          <h3 className="text-center mb-1">Sign Up</h3>
+
+          <p className="auth-helper mb-4">
+            Already have an account?{" "}
+            <Link to="/login" className="auth-link">Log in</Link>
+          </p>
+
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="form-label" htmlFor="name">Name</label>
@@ -59,7 +71,7 @@ function Signup() {
               />
             </div>
 
-            <div className="mb-4">
+            <div className="mb-3">
               <label className="form-label" htmlFor="password">Password</label>
               <input
                 id="password"
@@ -74,12 +86,47 @@ function Signup() {
               />
             </div>
 
-            <button type="submit" className="btn btn-primary w-100">
+            <div className="form-check mb-4">
+              <input
+                id="acceptTerms"
+                className="form-check-input"
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                required
+              />
+              <label className="form-check-label" htmlFor="acceptTerms">
+                I have read the{" "}
+                <button
+                  type="button"
+                  className="auth-link auth-link-btn"
+                  onClick={() => setShowTerms(true)}
+                >
+                  Terms and Conditions
+                </button>
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary w-100"
+              disabled={!acceptedTerms}
+            >
               Create Account
             </button>
           </form>
         </div>
       </div>
+      
+      {showTerms && (
+        <TermsModal
+          onClose={() => setShowTerms(false)}
+          onAgree={() => {
+            setAcceptedTerms(true);
+            setShowTerms(false);
+          }}
+        />
+      )}
     </div>
   );
 }

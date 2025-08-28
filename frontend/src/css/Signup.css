@@ -89,6 +89,38 @@ html, body, #root {
   margin-bottom: 1rem;
 }
 
+.auth-helper {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin: 0;
+}
+.auth-link {
+  color: var(--brand-purple);
+  text-decoration: none;
+}
+.auth-link:hover { text-decoration: underline; }
+
+.auth-link-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  font: inherit;
+  color: #6d28d9;   
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.auth-link-btn:focus { outline: none; }
+.auth-link-btn:focus-visible {
+  outline: none;   
+  text-decoration-thickness: from-font;
+}
+
+
 /* ====== Labels & Inputs ====== */
 .form-label {
   font-weight: 600;
@@ -115,6 +147,16 @@ html, body, #root {
   border-color: var(--brand-purple);
   box-shadow: 0 0 0 4px rgba(109, 40, 217, 0.12);
   outline: none;
+}
+
+/* Checkbox */
+.form-check-input:focus {
+  border-color: var(--brand-purple);
+  box-shadow: 0 0 0 4px rgba(109, 40, 217, 0.12);
+}
+.form-check-input:checked {
+  background-color: var(--brand-purple);
+  border-color: var(--brand-purple);
 }
 
 /* ====== Primary Button ====== */
