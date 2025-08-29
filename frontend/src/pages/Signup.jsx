@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import TermsModal from "../components/terms";
 import "../css/Signup.css";
 import "../css/term.css";
-import Layout from "../components/Layout";
 import axios from "axios";
 
 function Signup() {
@@ -35,7 +34,6 @@ function Signup() {
   };
 
   return (
-    <Layout>
     <div className="signup-container">
       {/* Left Section */}
       <div className="signup-left d-flex justify-content-center align-items-center text-center">
@@ -140,7 +138,6 @@ function Signup() {
         />
       )}
     </div>
-    </Layout>
   );
 }
 

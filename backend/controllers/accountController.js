@@ -42,11 +42,67 @@ const getAccount = async (req, res) => {
 }
 
 const editAccount = async (req, res) => {
-    return;
+    const { id } = req.params;
+    let user;
+
+    try {
+        user = await User.findByPk(id);
+
+        if (!user) {
+            return res.status(404).json({
+                error: "Account not found"
+            })
+        }
+        const allowedFields = ["name", "email", "password"];
+        const updates = {};
+        allowedFields.forEach((field) => {
+            if (typeof req.body[field] !== "undefined") {
+                updates[field] = req.body[field];
+            }
+        });
+
+        if (Object.keys(updates).length === 0) {
+            return res.status(400).json({
+                error: "No valid fields given"
+            })
+        }
+
+        await user.update(updates);
+    } catch (err) {
+        return res.status(500).json({
+            error: "Error when updating account"
+        })
+    }
+
+    return res.status(200).json({
+        message: "Success",
+        user: user
+    })
 };
 
 const deleteAccount = async (req, res) => {
-    return;
+    const { id } = req.params;
+    let user;
+
+    try {
+        user = await User.findByPk(id);
+
+        if (!user) {
+            return res.status(404).json({
+                error: "Account not found"
+            })
+        }
+
+        await user.destroy();
+    } catch (err) {
+        return res.status(500).json({
+            error: "Error when deleting account"
+        })
+    }
+
+    return res.status(200).json({
+        message: "Account deleted"
+    })
 }
 
 module.exports = {
