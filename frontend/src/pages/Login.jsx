@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom"; 
 import "../css/Login.css";
-import Layout from "../components/Layout";
 import axios from "axios";
 
 function Login() {
@@ -30,7 +29,6 @@ function Login() {
   };
 
   return (
-    <Layout>
     <div className="login-container">
       {/* Left Section */}
       <div className="login-left d-flex justify-content-center align-items-center text-center">
@@ -87,7 +85,6 @@ function Login() {
         </div>
       </div>
     </div>
-    </Layout>
   );
 }
 
