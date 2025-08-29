@@ -8,13 +8,18 @@ const portfolioRoutes = require("./routes/portfolio");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 require("./models/associations")
 
 const app = express();
 app.use(express.json())
+app.use(cookieParser())
 
 //Middleware
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+}));
 app.use(assignRequestTime)
 app.use(logger)
 

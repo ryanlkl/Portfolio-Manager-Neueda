@@ -3,25 +3,21 @@ const axios = require("axios");
 const { FINNHUB_KEY, FINNHUB_URL } = require("../config");
 const { v4: uuidv4 } = require("uuid");
 
-const calculateStockPerformance = async (ticker, quantity) => {
+const calculateStockValue = async (ticker, quantity) => {
   const response = await axios.get(FINNHUB_URL, {
     params: { symbol: ticker, token: FINNHUB_KEY}
   });
 
   const price = response.data?.c ?? 0;
 
-  return {
-    "totalValue": quantity * price,
-    "gainLoss": (currPrice - purchasePrice) * quantity,
-    "percentageGainLoss": ((currPrice - purchasePrice) / purchasePrice) * 100
-  }
+  return quantity * price;
 }
 
 const calculatePortfolioTotal = async (stocks) => {
   let totalValue = 0;
 
   for (let stock of stocks) {
-    totalValue += stock.totalValue;
+    totalValue += stock.dataValues.totalValue;
   }
 
   return {
@@ -32,7 +28,7 @@ const calculatePortfolioTotal = async (stocks) => {
 // Get all stocks
 const getAllStocks = async (req, res) => {
   const { pid } = req.params;
-  console.log(pid);
+  console.log("Portfolio id: ", pid);
 
   try {
     console.log("Fetching stocks from DB");
@@ -41,6 +37,8 @@ const getAllStocks = async (req, res) => {
         portfolioId: pid
       }
     });
+
+    console.log("Stocks fetched: ", stocks);
 
     if (!stocks) return res.status(404).json({ error: "No stocks found" });
 
@@ -81,7 +79,7 @@ const addStock = async (req, res) => {
   const { pid } = req.params;
   
   try {
-    const { ticker, quantity } = req.body;
+    const { name, ticker, quantity } = req.body;
 
     const response = await axios.get(FINNHUB_URL, {
       params: { symbol: ticker, token: FINNHUB_KEY }
@@ -90,6 +88,7 @@ const addStock = async (req, res) => {
     const price = response.data?.c ?? null; // 'c' is the current price
     const stock = await Stock.create({
       id: uuidv4(),
+      name: name,
       ticker: ticker, 
       quantity: quantity,
       portfolioId: pid
@@ -105,7 +104,7 @@ const addStock = async (req, res) => {
 const updateStock = async (req, res) => {
   const { pid, id } = req.params;
   try {
-    const { ticker, quantity } = req.body;
+    const { name, ticker, quantity } = req.body;
 
     const response = await axios.get(FINNHUB_URL, {
       params: { symbol: ticker, token: FINNHUB_KEY }
@@ -115,6 +114,7 @@ const updateStock = async (req, res) => {
 
     const [updated] = await Stock.update(
       { 
+        name: name,
         ticker: ticker,
         quantity: quantity,
       },

@@ -25,7 +25,9 @@ function Signup() {
     console.log("Signup data:", formData);
 
     try {
-      const response = await axios.post("http://localhost:3000/auth/register", formData)
+      const response = await axios.post("http://localhost:3000/auth/register", formData, {
+        withCredentials: true
+      })
       const data = response.data
       console.log(data)
     } catch (err) {

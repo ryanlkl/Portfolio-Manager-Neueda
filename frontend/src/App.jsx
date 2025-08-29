@@ -7,6 +7,9 @@ import Account from "./pages/Account";
 import Holdings from "./pages/Holdings";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Performance from "./pages/Performance";
+import axios from "axios";
+
+axios.defaults.withCredentials = true;
 
 export default function App() {
   return (
