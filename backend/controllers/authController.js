@@ -3,6 +3,7 @@ const { JWT_SECRET } = require("../config")
 const User = require("../models/users")
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
+const { get } = require("../routes/assets");
 
 const createJWT = async (id, name) => {
     const payload = {
@@ -101,7 +102,23 @@ const registerUser = async (req, res) => {
     })
 }
 
+const getCurrentUser = async (req, res) => {
+    const user = req.user;
+
+    if (!user) {
+        return res.status(404).json({
+            error: "User not found"
+        });
+    }
+
+    return res.status(200).json({
+        message: "Success",
+        user: user
+    });
+};
+
 module.exports = {
     logInUser,
-    registerUser
+    registerUser,
+    getCurrentUser
 }
