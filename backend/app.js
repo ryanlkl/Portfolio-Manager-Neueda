@@ -5,6 +5,7 @@ const authRoutes = require("./routes/auth");
 const { sequelize } = require("./config/mysql");
 const assetRoutes = require("./routes/assets");
 const portfolioRoutes = require("./routes/portfolio");
+const transactionRoutes = require("./routes/transactions");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
 const cors = require("cors");
@@ -28,6 +29,7 @@ app.use("/accounts", accountRoutes)
 app.use("/portfolio/:pid/assets", assetRoutes)
 app.use("/auth", authRoutes)
 app.use("/portfolio", portfolioRoutes)
+app.use("/portfolio/:pid/transactions", transactionRoutes)
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Database

@@ -9,7 +9,7 @@ function BasicExample() {
     useEffect(() => {
         const fetchHoldings = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/portfolio/0595ae83-c94f-4275-8fc5-bc3e9b7ff25a/assets/stocks/');
+                const response = await axios.get('http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10/assets/stocks/');
                 setHoldings(response.data.stocks);
                 console.log(response.data.stocks);
             } catch (error) {
@@ -37,8 +37,8 @@ function BasicExample() {
                 <td>{holding.name}</td>
                 <td>{holding.ticker}</td>
                 <td>{holding.quantity}</td>
-                <td>{holding.totalValue}</td>
-                <td>{holding.gainLoss}</td>
+                <td>${Math.round(holding.totalValue * 100) / 100}</td>
+                <td>{Math.round(holding.gainLoss * 100) / 100}%</td>
             </tr>
         ))}
       </tbody>
