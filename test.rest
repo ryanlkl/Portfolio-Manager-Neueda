@@ -17,38 +17,42 @@ Content-Type: application/json
 }
 
 ###
+GET http://localhost:3000/auth/me HTTP/1.1
+
+###
 POST http://localhost:3000/portfolio/ HTTP/1.1
 Content-Type: application/json
 
 ###
-GET http://localhost:3000/portfolio/0595ae83-c94f-4275-8fc5-bc3e9b7ff25a HTTP/1.1
+GET http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10 HTTP/1.1
 Content-Type: application/json
 
 ###
-DELETE http://localhost:3000/portfolio/0595ae83-c94f-4275-8fc5-bc3e9b7ff25a HTTP/1.1
+DELETE http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10 HTTP/1.1
 
 ###
-GET http://localhost:3000/portfolio/0595ae83-c94f-4275-8fc5-bc3e9b7ff25a/assets/stocks/ HTTP/1.1
+GET http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10/assets/stocks/ HTTP/1.1
 
 ###
-POST http://localhost:3000/portfolio/0595ae83-c94f-4275-8fc5-bc3e9b7ff25a/assets/stocks/ HTTP/1.1
-Content-Type: application/json
-
-{
-    "name": "Amazon.com, Inc.",
-    "ticker": "AMZN",
-    "quantity": 10
-}
-
-###
-PATCH http://localhost:3000/portfolio/0595ae83-c94f-4275-8fc5-bc3e9b7ff25a/assets/stocks/9d4affe5-dfea-461a-bbed-8bb424616019/ HTTP/1.1
+POST http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10/assets/stocks/ HTTP/1.1
 Content-Type: application/json
 
 {
     "name": "Apple Inc.",
     "ticker": "AAPL",
-    "quantity": 15
+    "quantity": 5
 }
 
 ###
-DELETE http://localhost:3000/portfolio/0595ae83-c94f-4275-8fc5-bc3e9b7ff25a/assets/stocks/9d4affe5-dfea-461a-bbed-8bb424616019/ HTTP/1.1
+PATCH http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10/assets/stocks/d6c46662-b821-4dec-aff4-ffbfd8eac358/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "Apple Inc.",
+    "ticker": "AAPL",
+    "quantity": 8
+}
+
+###
+DELETE http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10/assets/stocks/d6c46662-b821-4dec-aff4-ffbfd8eac358/ HTTP/1.1
+

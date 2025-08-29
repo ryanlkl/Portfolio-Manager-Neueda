@@ -2,15 +2,29 @@ const Stock = require("../models/stocks");
 const axios = require("axios");
 const { FINNHUB_KEY, FINNHUB_URL } = require("../config");
 const { v4: uuidv4 } = require("uuid");
+const { addTransaction } = require("./transactionController");
 
-const calculateStockValue = async (ticker, quantity) => {
+const calculateStockPerformance = async (ticker, quantity) => {
   const response = await axios.get(FINNHUB_URL, {
     params: { symbol: ticker, token: FINNHUB_KEY}
   });
 
   const price = response.data?.c ?? 0;
+  const prevClose = response.data?.pc ?? 0;
 
-  return quantity * price;
+  const totalValue = quantity * price;
+
+  const dailyGainLoss = calculateDailyGainLoss(price, prevClose);
+
+  return {
+    "currentPrice": price,
+    "totalValue": totalValue,
+    "dailyGainLoss": dailyGainLoss
+  };
+}
+
+const calculateDailyGainLoss = (currPrice, prevClose) => {
+  return ((currPrice - prevClose) / prevClose) * 100;
 }
 
 const calculatePortfolioTotal = async (stocks) => {
@@ -43,8 +57,10 @@ const getAllStocks = async (req, res) => {
     if (!stocks) return res.status(404).json({ error: "No stocks found" });
 
     for (let stock of stocks) {
-      const totalValue = await calculateStockValue(stock.ticker, stock.quantity);
-      stock.dataValues.totalValue = totalValue;
+      const performance = await calculateStockPerformance(stock.ticker, stock.quantity);
+      stock.dataValues.totalValue = performance.totalValue;
+      stock.dataValues.currPrice = performance.currentPrice;
+      stock.dataValues.gainLoss = performance.dailyGainLoss;
     }
 
     res.status(200).json({
@@ -65,7 +81,7 @@ const getStockById = async (req, res) => {
   try {
     const stock = await Stock.findByPk(id);
     if (!stock) return res.status(404).json({ error: "Stock not found" });
-    const totalValue = await calculateStockValue(stock.ticker, stock.quantity);
+    const totalValue = await calculateStockPerformance(stock.ticker, stock.quantity);
     stock.dataValues.totalValue = totalValue;
     res.status(200).json(stock);
   } catch (err) {
@@ -93,10 +109,13 @@ const addStock = async (req, res) => {
       quantity: quantity,
       portfolioId: pid
     });
-    res.status(201).json({ message: "Stock added", stockId: stock.id, purchasePrice: price, portfolioId: pid });
+
+    await addTransaction(pid, stock.id, "buy", ticker, quantity, price, new Date());
+
+    return res.status(201).json({ message: "Stock added", stockId: stock.id, purchasePrice: price, portfolioId: pid });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Error adding stock" });
+    return res.status(500).json({ error: "Error adding stock" });
   }
 };
 
@@ -112,6 +131,26 @@ const updateStock = async (req, res) => {
 
     const price = response.data?.c ?? null; // c is the current price
 
+    let type;
+
+    const existingStock = await Stock.findByPk(id);
+
+    let deltaQuantity;
+
+    if (quantity > existingStock.quantity) {
+      type = "buy";
+      deltaQuantity = quantity - existingStock.quantity;
+    } else if (quantity < existingStock.quantity) {
+      type = "sell";
+      deltaQuantity = existingStock.quantity - quantity;
+    } else {
+      return res.status(400).json({ error: "Quantity unchanged" });
+    }
+
+    if (type === "sell" && deltaQuantity > existingStock.quantity) {
+      return res.status(400).json({ error: "Cannot sell more than owned" });
+    }
+
     const [updated] = await Stock.update(
       { 
         name: name,
@@ -120,6 +159,8 @@ const updateStock = async (req, res) => {
       },
       { where: { id: id } }
     );
+
+    await addTransaction(pid, id, type, ticker, deltaQuantity, price, new Date());
 
     if (!updated) return res.status(404).json({ error: "Stock not found" });
     res.status(201).json({ message: "Stock updated", price });
@@ -131,7 +172,22 @@ const updateStock = async (req, res) => {
 
 // Delete a stock
 const deleteStock = async (req, res) => {
+  const { pid, id } = req.params;
   try {
+    const existingStock = await Stock.findByPk(req.params.id);
+    
+    if (!existingStock) return res.status(404).json({ error: "Stock not found" });
+    
+    const quantity = existingStock.quantity;
+
+    const response = await axios.get(FINNHUB_URL, {
+      params: { symbol: existingStock.ticker, token: FINNHUB_KEY }
+    });
+
+    const price = response.data?.c ?? null; // c is the current price
+
+    await addTransaction(pid, id, "sell", existingStock.ticker, quantity, price, new Date());
+
     const deleted = await Stock.destroy({ where: { id: req.params.id } });
     if (!deleted) return res.status(404).json({ error: "Stock not found" });
     res.json({ message: "Stock deleted" });
