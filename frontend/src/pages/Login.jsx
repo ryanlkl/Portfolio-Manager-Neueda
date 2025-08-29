@@ -18,7 +18,9 @@ function Login() {
     console.log("Login data:", formData);
 
     try {
-      const response = await axios.post("http://localhost:3000/auth/login", formData);
+      const response = await axios.post("http://localhost:3000/auth/login", formData, {
+        withCredentials: true
+      });
       const data = response.data
       console.log(data)
     } catch (err) {

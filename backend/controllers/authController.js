@@ -48,19 +48,19 @@ const logInUser = async (req, res) => {
         const match = await passwordsMatch(password, user.passwordHash)
 
         if (!match) {
-            res.status(401).json({
+            return res.status(401).json({
                 error: "Invalid credentials"
             })
         }
 
         const token = await createJWT(user.id, user.name)
 
-        res.status(201)
-        .cookie("access_token", token, {httpOnly: true})
+        return res.status(201)
+        .cookie("access_token", token, {httpOnly: true, sameSite: "lax", secure: false})
         .json({
             message: "Success",
             user: user,
-            token: token
+            token: token,
         })
     } catch (err) {
         console.error("Error logging in user: ", err)
@@ -85,7 +85,7 @@ const registerUser = async (req, res) => {
         })
         
     } catch (err) {
-        res.status(400).json({
+        return res.status(400).json({
             status: "Failed to create user",
             error: err
         })
@@ -95,9 +95,9 @@ const registerUser = async (req, res) => {
 
     return res
         .status(201)
-        .cookie("access_token", token, {httpOnly: true})
+        .cookie("access_token", token, {httpOnly: true, sameSite: "lax", secure: false})
         .json({
-        message: "Successfully created"
+        message: "Successfully created",
     })
 }
 

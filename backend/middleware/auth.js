@@ -2,9 +2,8 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config");
 
 const authenticateToken = (req, res, next) => {
-    const token = req.headers.cookie?.split("=")[1];
+    const token = req.cookies.access_token;
 
-    console.log(token)
     if (!token) {
         return res.status(401).json({ error: "No token provided" })
     }
@@ -15,6 +14,7 @@ const authenticateToken = (req, res, next) => {
 
         }
         req.user = user;
+
         next();
     })
 }
