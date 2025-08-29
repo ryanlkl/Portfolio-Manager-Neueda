@@ -1,0 +1,21 @@
+/* Light defaults */
+:root,
+:root[data-bs-theme='light'] {
+  --bs-body-bg: #ffffff;
+  --bs-body-color: #212529;
+}
+
+/* Dark mode */
+:root[data-bs-theme='dark'] {
+  --bs-body-bg: #1f232a;      /* page bg */
+  --bs-body-color: #e9ecef;   /* default text */
+  --bs-secondary-bg: #2b3037; /* used by .bg-body-secondary if you want */
+  --bs-tertiary-bg: #262b32;  /* used by .bg-body-tertiary */
+}
+
+/* Ensure the app surface uses the var (covers cases where #root had white bg) */
+html, body, #root {
+  min-height: 100%;
+  background-color: var(--bs-body-bg) !important;
+  color: var(--bs-body-color);
+}
