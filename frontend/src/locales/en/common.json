@@ -1,0 +1,39 @@
+{
+  "portfolio": {
+    "title": "Portfolio",
+    "addAsset": "Add Asset"
+  },
+  "assetForm": {
+    "title": "Add Asset",
+    "id": "Asset ID",
+    "ticker": "Ticker",
+    "quantity": "Quantity",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "auth": {
+    "signUp": "Sign Up",
+    "login": "Log in",
+    "haveAccount": "Already have an account?",
+    "terms": "Terms and Conditions",
+    "createAccount": "Create Account",
+    "readTerms": "I have read the"
+  },
+  "common": {
+    "close": "Close"
+  },
+  "assetForm": {
+    "title": "Add Asset",
+    "id": "Asset ID",
+    "ticker": "Ticker",
+    "quantity": "Quantity",
+    "save": "Save",
+    "cancel": "Cancel",
+    "placeholders": {
+      "id": "e.g. 6f4c8b0a-1234-…",
+      "ticker": "e.g. AAPL",
+      "quantity": "e.g. 10 or 10.5"
+    }
+  }
+}
+
