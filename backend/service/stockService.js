@@ -1,4 +1,6 @@
 const Transactions = require("../models/transactions")
+const axios = require("axios");
+const { FINNHUB_KEY, FINNHUB_URL } = require("../config");
 
 const calculateAverageCost = async (stockId) => {
     const transactions = await Transactions.findAll({
