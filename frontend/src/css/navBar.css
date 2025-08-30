@@ -1,0 +1,19 @@
+:root {
+  --sidebar-width: 240px;
+}
+
+@media (min-width: 992px) {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    padding-left: 0 !important;
+  }
+
+  #root {
+    padding-left: var(--sidebar-width) !important;
+  }
+}

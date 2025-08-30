@@ -3,7 +3,7 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import Button from 'react-bootstrap/Button';
+import '../css/navBar.css';
 
 function NavBar() {
   const [theme, setTheme] = useState(() => {
@@ -25,34 +25,58 @@ function NavBar() {
   const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'));
 
   return (
-    <Navbar collapseOnSelect expand="lg" className="bg-body-secondary">
-      <Container>
-        <Navbar.Brand href="/portfolio">PortManager</Navbar.Brand>
-        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-        <Navbar.Collapse id="responsive-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link href="/portfolio">Portfolio</Nav.Link>
-            <Nav.Link href="/holdings">Holdings</Nav.Link>
-            <Nav.Link href="/performance">Performance</Nav.Link>
-          </Nav>
-          <Nav className="align-items-center">
-            <Button
-              variant="outline-secondary"
-              className="me-2"
-              onClick={toggleTheme}
-              aria-label="Toggle color mode"
-            >
-              {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-            </Button>
-            <NavDropdown title="Account" id="collapsible-nav-dropdown">
-              <NavDropdown.Item href="/login">Sign In</NavDropdown.Item>
-              <NavDropdown.Item href="/signup">Register</NavDropdown.Item>
-              <NavDropdown.Item href="#logout">Sign Out</NavDropdown.Item>
-            </NavDropdown>
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+    <>
+      <Navbar
+        collapseOnSelect
+        expand="lg"
+        className="bg-body-secondary position-fixed top-0 start-0 vh-100 d-flex flex-column p-3 border-end"
+        style={{ width: 240, zIndex: 1030 }}
+      >
+        <Container fluid className="p-0 d-flex flex-column align-items-stretch h-100">
+          <Navbar.Brand href="/portfolio" className="mb-3">PortManager</Navbar.Brand>
+
+          <Navbar.Toggle aria-controls="responsive-navbar-nav" className="mb-2" />
+
+          <Navbar.Collapse id="responsive-navbar-nav" className="d-flex flex-column">
+            <Nav className="flex-column w-100">
+              <Nav.Link href="/portfolio">Portfolio</Nav.Link>
+              <Nav.Link href="/holdings">Holdings</Nav.Link>
+              <Nav.Link href="/performance">Performance</Nav.Link>
+            </Nav>
+
+            <Nav className="flex-column w-100 mt-auto mb-5">
+              <NavDropdown
+                title="Account"
+                id="account-menu"
+                drop="up"
+                align="start"
+                className="w-100"
+                renderMenuOnMount
+                popperConfig={{
+                  strategy: 'fixed',
+                  modifiers: [
+                    { name: 'offset', options: { offset: [0, 6] } },
+                    { name: 'preventOverflow', options: { boundary: 'viewport' } },
+                  ],
+                }}
+              >
+                <NavDropdown.Item href="/login">Sign In</NavDropdown.Item>
+                <NavDropdown.Item href="/signup">Register</NavDropdown.Item>
+                <NavDropdown.Item href="#logout">Sign Out</NavDropdown.Item>
+              </NavDropdown>
+
+              <Nav.Link
+                onClick={toggleTheme}
+                role="button"
+                className="btn btn-outline-secondary w-100 text-start"
+              >
+                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+    </>
   );
 }
 
