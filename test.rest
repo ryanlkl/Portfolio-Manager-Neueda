@@ -24,27 +24,27 @@ POST http://localhost:3000/portfolio/ HTTP/1.1
 Content-Type: application/json
 
 ###
-GET http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10 HTTP/1.1
+GET http://localhost:3000/portfolio/2023ebcc-fde8-437c-be49-efa4b50b475c HTTP/1.1
 Content-Type: application/json
 
 ###
-DELETE http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10 HTTP/1.1
+DELETE http://localhost:3000/portfolio/2023ebcc-fde8-437c-be49-efa4b50b475c HTTP/1.1
 
 ###
-GET http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10/assets/stocks/ HTTP/1.1
+GET http://localhost:3000/portfolio/2023ebcc-fde8-437c-be49-efa4b50b475c/assets/stocks/ HTTP/1.1
 
 ###
-POST http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10/assets/stocks/ HTTP/1.1
+POST http://localhost:3000/portfolio/2023ebcc-fde8-437c-be49-efa4b50b475c/assets/stocks/ HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "Apple Inc.",
+    "name": "Amazon.",
     "ticker": "AAPL",
     "quantity": 5
 }
 
 ###
-PATCH http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10/assets/stocks/d6c46662-b821-4dec-aff4-ffbfd8eac358/ HTTP/1.1
+PATCH http://localhost:3000/portfolio/2023ebcc-fde8-437c-be49-efa4b50b475c/assets/stocks/868a97b3-385f-4007-9a42-852e2ea3fe5d/ HTTP/1.1
 Content-Type: application/json
 
 {
@@ -54,5 +54,5 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10/assets/stocks/d6c46662-b821-4dec-aff4-ffbfd8eac358/ HTTP/1.1
+DELETE http://localhost:3000/portfolio/2023ebcc-fde8-437c-be49-efa4b50b475c/assets/stocks/868a97b3-385f-4007-9a42-852e2ea3fe5d/ HTTP/1.1
 

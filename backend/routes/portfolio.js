@@ -7,5 +7,6 @@ portfolioRoutes.get("/:id", authenticateToken, portfolioController.getUserPortfo
 portfolioRoutes.post("/", authenticateToken, portfolioController.createPortfolio);
 portfolioRoutes.patch("/:id", authenticateToken, portfolioController.updatePortfolio);
 portfolioRoutes.delete("/:id", authenticateToken, portfolioController.deletePortfolio);
+portfolioRoutes.get("/:id/history", authenticateToken, portfolioController.getPortfolioHistoryController);
 
 module.exports = portfolioRoutes;
