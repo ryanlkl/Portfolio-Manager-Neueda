@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "../css/form.css"; 
 import axios from "axios";
 import { useAuthStore } from "../lib/store";
 
@@ -17,8 +18,8 @@ function AssetForm({ show, onClose, onSave, initial = {} }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave?.({
-      id: id,
-      ticker: ticker,
+      id,
+      ticker,
       quantity: quantity === "" ? "" : parseFloat(quantity),
     });
 
@@ -42,17 +43,17 @@ function AssetForm({ show, onClose, onSave, initial = {} }) {
   };
 
   return (
-    <div className="term-overlay" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="term-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="term-header">
+    <div className="asset-overlay" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="asset-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="asset-header">
           <h4 className="mb-0">Add Asset</h4>
-          <button type="button" className="term-close" onClick={onClose}>×</button>
+          <button type="button" className="asset-close" onClick={onClose}>×</button>
         </div>
 
-        <div className="term-body">
+        <div className="asset-body">
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label htmlFor="name" className="form-label">Name</label>
+              <label htmlFor="asset-id" className="form-label">Name</label>
               <input
                 id="asset-id"
                 className="form-control"
@@ -89,11 +90,11 @@ function AssetForm({ show, onClose, onSave, initial = {} }) {
               />
             </div>
 
-            <div className="term-footer" style={{ borderTop: "none", padding: 0 }}>
+            <div className="asset-footer" style={{ borderTop: "none", padding: 0 }}>
               <button type="button" className="btn btn-light me-2" onClick={onClose}>
                 Cancel
               </button>
-              <button type="submit" className="term-action">
+              <button type="submit" className="asset-action">
                 Save
               </button>
             </div>
