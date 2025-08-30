@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom"; 
 import "../css/Login.css";
 import axios from "axios";
@@ -8,6 +8,11 @@ function Login() {
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    document.body.classList.add("no-sidebar-pad");
+    return () => document.body.classList.remove("no-sidebar-pad");
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,10 +26,10 @@ function Login() {
       const response = await axios.post("http://localhost:3000/auth/login", formData, {
         withCredentials: true
       });
-      const data = response.data
-      console.log(data)
+      const data = response.data;
+      console.log(data);
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
   };
 

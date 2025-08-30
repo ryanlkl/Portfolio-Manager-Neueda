@@ -13,7 +13,8 @@
     padding-left: 0 !important;
   }
 
-  #root {
+  /* Only shift content when body doesn't have a .no-sidebar-pad */
+  body:not(.no-sidebar-pad) #root {
     padding-left: var(--sidebar-width) !important;
   }
 }
