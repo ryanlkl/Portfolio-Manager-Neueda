@@ -5,6 +5,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import '../css/navBar.css';
 
+// new side bar 
 function NavBar() {
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
