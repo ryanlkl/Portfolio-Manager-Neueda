@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import TermsModal from "../components/terms";
 import "../css/Signup.css";
@@ -6,13 +6,14 @@ import "../css/term.css";
 import axios from "axios";
 
 function Signup() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+
+  useEffect(() => {
+    document.body.classList.add("no-sidebar-pad");
+    return () => document.body.classList.remove("no-sidebar-pad");
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,18 +22,14 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!acceptedTerms) return;
-    console.log("Signup data:", formData);
-
     try {
       const response = await axios.post("http://localhost:3000/auth/register", formData, {
-        withCredentials: true
-      })
-      const data = response.data
-      console.log(data)
+        withCredentials: true,
+      });
+      console.log(response.data);
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-    
   };
 
   return (
@@ -119,17 +116,13 @@ function Signup() {
               </label>
             </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary w-100"
-              disabled={!acceptedTerms}
-            >
+            <button type="submit" className="btn btn-primary w-100" disabled={!acceptedTerms}>
               Create Account
             </button>
           </form>
         </div>
       </div>
-      
+
       {showTerms && (
         <TermsModal
           onClose={() => setShowTerms(false)}
