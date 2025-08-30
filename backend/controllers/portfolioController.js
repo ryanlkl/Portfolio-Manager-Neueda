@@ -1,14 +1,23 @@
 const Portfolio = require("../models/portfolio");
 const { v4: uuidv4 } = require("uuid");
+const { getPortfolioPerformance, savePortfolioSnapshot, getPortfolioHistory } = require("../service/portfolioService");
+const Stocks = require("../models/stocks")
 
 // Get the user's portfolio
 const getUserPortfolio = async (req, res) => {
-  const { id } = req.params;
   try {
+    const { id } = req.params;
     const portfolio = await Portfolio.findOne({ where: { id: id } });
 
     if (!portfolio) return res.status(404).json({ error: "Portfolio not found" });
-    res.status(200).json(portfolio);
+
+    const performance = await getPortfolioPerformance(id)
+
+    res.status(200).json({
+      portfolio,
+      ...performance
+    });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error when fetching portfolio" });
@@ -66,9 +75,22 @@ const deletePortfolio = async (req, res) => {
   }
 };
 
+// Get portfolio history for graphing
+const getPortfolioHistoryController = async (req, res) => {
+  try {
+    const { id } = req.params; // portfolio id
+    const history = await getPortfolioHistory(id);
+    res.status(200).json({ history });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error fetching portfolio history" });
+  }
+};
+
 module.exports = {
   getUserPortfolio,
   createPortfolio,
   updatePortfolio,
-  deletePortfolio
+  deletePortfolio,
+  getPortfolioHistoryController // <-- export the new controller
 }

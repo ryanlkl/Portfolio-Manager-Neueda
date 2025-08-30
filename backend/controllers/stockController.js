@@ -3,41 +3,8 @@ const axios = require("axios");
 const { FINNHUB_KEY, FINNHUB_URL } = require("../config");
 const { v4: uuidv4 } = require("uuid");
 const { addTransaction } = require("./transactionController");
-
-const calculateStockPerformance = async (ticker, quantity) => {
-  const response = await axios.get(FINNHUB_URL, {
-    params: { symbol: ticker, token: FINNHUB_KEY}
-  });
-
-  const price = response.data?.c ?? 0;
-  const prevClose = response.data?.pc ?? 0;
-
-  const totalValue = quantity * price;
-
-  const dailyGainLoss = calculateDailyGainLoss(price, prevClose);
-
-  return {
-    "currentPrice": price,
-    "totalValue": totalValue,
-    "dailyGainLoss": dailyGainLoss
-  };
-}
-
-const calculateDailyGainLoss = (currPrice, prevClose) => {
-  return ((currPrice - prevClose) / prevClose) * 100;
-}
-
-const calculatePortfolioTotal = async (stocks) => {
-  let totalValue = 0;
-
-  for (let stock of stocks) {
-    totalValue += stock.dataValues.totalValue;
-  }
-
-  return {
-    "totalValue": totalValue
-  }
-}
+const { savePortfolioSnapshot } = require("../service/portfolioService");
+const { calculateAverageCost, calculateStockPerformance, calculatePortfolioTotal } = require("../service/stockService")
 
 // Get all stocks
 const getAllStocks = async (req, res) => {
@@ -58,9 +25,13 @@ const getAllStocks = async (req, res) => {
 
     for (let stock of stocks) {
       const performance = await calculateStockPerformance(stock.ticker, stock.quantity);
+      const avgCost = await calculateAverageCost(stock.id)
+
       stock.dataValues.totalValue = performance.totalValue;
       stock.dataValues.currPrice = performance.currentPrice;
       stock.dataValues.gainLoss = performance.dailyGainLoss;
+      stock.dataValues.avgCost = avgCost;
+      stock.dataValues.unrealisedPL = (performance.currentPrice - avgCost) * stock.quantity
     }
 
     res.status(200).json({
@@ -111,6 +82,7 @@ const addStock = async (req, res) => {
     });
 
     await addTransaction(pid, stock.id, "buy", ticker, quantity, price, new Date());
+    await savePortfolioSnapshot(pid)
 
     return res.status(201).json({ message: "Stock added", stockId: stock.id, purchasePrice: price, portfolioId: pid });
   } catch (err) {
@@ -161,6 +133,7 @@ const updateStock = async (req, res) => {
     );
 
     await addTransaction(pid, id, type, ticker, deltaQuantity, price, new Date());
+    await savePortfolioSnapshot(pid)
 
     if (!updated) return res.status(404).json({ error: "Stock not found" });
     res.status(201).json({ message: "Stock updated", price });
@@ -187,6 +160,7 @@ const deleteStock = async (req, res) => {
     const price = response.data?.c ?? null; // c is the current price
 
     await addTransaction(pid, id, "sell", existingStock.ticker, quantity, price, new Date());
+    await savePortfolioSnapshot(pid)
 
     const deleted = await Stock.destroy({ where: { id: req.params.id } });
     if (!deleted) return res.status(404).json({ error: "Stock not found" });
