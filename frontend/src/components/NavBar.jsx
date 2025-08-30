@@ -4,9 +4,13 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import '../css/navBar.css';
+import { useAuthStore } from '../lib/store';
+import { useNavigate } from 'react-router-dom';
 
 // new side bar 
 function NavBar() {
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const logout = useAuthStore((state) => state.logout);
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
@@ -17,6 +21,7 @@ function NavBar() {
     }
     return 'light';
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-bs-theme', theme);
@@ -24,6 +29,11 @@ function NavBar() {
   }, [theme]);
 
   const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'));
+
+  const handleLogout = () => {
+    logout();
+    navigate("/signup");
+  };
 
   return (
     <>
@@ -42,7 +52,6 @@ function NavBar() {
             <Nav className="flex-column w-100">
               <Nav.Link href="/portfolio">Portfolio</Nav.Link>
               <Nav.Link href="/holdings">Holdings</Nav.Link>
-              <Nav.Link href="/performance">Performance</Nav.Link>
             </Nav>
 
             <Nav className="flex-column w-100 mt-auto mb-5">
@@ -61,9 +70,17 @@ function NavBar() {
                   ],
                 }}
               >
-                <NavDropdown.Item href="/login">Sign In</NavDropdown.Item>
-                <NavDropdown.Item href="/signup">Register</NavDropdown.Item>
-                <NavDropdown.Item href="#logout">Sign Out</NavDropdown.Item>
+                {isLoggedIn ? (
+                  <>
+                    <NavDropdown.Item href="/account">Profile</NavDropdown.Item>
+                    <NavDropdown.Item href="#logout" onClick={handleLogout}>Sign Out</NavDropdown.Item>
+                  </>
+                ) : (
+                  <>
+                    <NavDropdown.Item href="/login">Sign In</NavDropdown.Item>
+                    <NavDropdown.Item href="/signup">Register</NavDropdown.Item>
+                  </>
+                )}
               </NavDropdown>
 
               <Nav.Link

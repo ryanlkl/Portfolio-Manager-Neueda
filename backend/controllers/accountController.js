@@ -1,4 +1,5 @@
 const User = require("../models/users");
+const Portfolio = require("../models/portfolio")
 
 const getAllAccounts = async (req, res) => {
     let users;
@@ -22,7 +23,12 @@ const getAccount = async (req, res) => {
     const { id } = req.params;
 
     try {
-        user = await User.findByPk(id);
+        user = await User.findByPk(id, {
+            include: {
+                model: Portfolio,
+                attributes: ["id"]
+            }
+        });
 
         if (!user) {
             return res.status(404).json({

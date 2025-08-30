@@ -1,7 +1,12 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useAuthStore } from "../lib/store";
 
 function AssetForm({ show, onClose, onSave, initial = {} }) {
+
   if (!show) return null;
+  const user = useAuthStore((state) => state.user);
+  const portfolioId = user.portfolio.id
 
   const [id, setId] = useState(initial.id || "");
   const [ticker, setTicker] = useState(initial.ticker || "");
@@ -16,6 +21,24 @@ function AssetForm({ show, onClose, onSave, initial = {} }) {
       ticker: ticker,
       quantity: quantity === "" ? "" : parseFloat(quantity),
     });
+
+    if (!id || !ticker || !quantity) {
+      console.log("Invalid input");
+      return;
+    }
+    try {
+        const response = axios.post(`http://localhost:3000/portfolio/${portfolioId}/assets/stocks`, {
+          name: id,
+          ticker: ticker,
+          quantity: quantity,
+          portfolioId: portfolioId
+        })
+
+        console.log(response.data)
+    } catch (error) {
+      console.error("Error adding asset: ", error)
+    }
+
   };
 
   return (

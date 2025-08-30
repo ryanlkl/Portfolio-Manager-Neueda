@@ -3,7 +3,7 @@ const { JWT_SECRET } = require("../config")
 const User = require("../models/users")
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
-const { get } = require("../routes/assets");
+const Portfolio = require("../models/portfolio");
 
 const createJWT = async (id, name) => {
     const payload = {
@@ -35,6 +35,10 @@ const logInUser = async (req, res) => {
         const users = await User.findAll({
             where: {
                 email: email
+            },
+            include: {
+                model: Portfolio,
+                attributes: ["id"]
             }
         })
 

@@ -1,15 +1,20 @@
 import Table from 'react-bootstrap/Table';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useAuthStore } from '../lib/store';
+import { useNavigate } from 'react-router-dom';
 
 function BasicExample() {
-
+    const user = useAuthStore((state) => state.user);
+    const portfolioId = user.portfolio.id;
     const [holdings, setHoldings] = useState([])
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchHoldings = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/portfolio/9d26ad8f-56de-4ab4-a70d-fe9577f20e10/assets/stocks/');
+              console.log(user.portfolio.id)
+                const response = await axios.get(`http://localhost:3000/portfolio/${portfolioId}/assets/stocks/`);
                 setHoldings(response.data.stocks);
                 console.log(response.data.stocks);
             } catch (error) {
@@ -19,6 +24,10 @@ function BasicExample() {
 
         fetchHoldings();
     },[])
+
+    const handleRowClick = (ticker) => {
+      navigate(`/performance?ticker=${ticker}`)
+    }
 
   return (
     <Table striped bordered hover>
@@ -33,7 +42,10 @@ function BasicExample() {
       </thead>
       <tbody>
         {holdings.map((holding) => (
-            <tr key={holding.id}>
+            <tr key={holding.id}
+              onClick={() => handleRowClick(holding.ticker)}
+              style={{ cursor: 'pointer' }}
+            >
                 <td>{holding.name}</td>
                 <td>{holding.ticker}</td>
                 <td>{holding.quantity}</td>

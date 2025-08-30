@@ -2,12 +2,16 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom"; 
 import "../css/Login.css";
 import axios from "axios";
+import { useAuthStore } from "../lib/store";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+  const setUser = useAuthStore((state) => state.setUser);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.body.classList.add("no-sidebar-pad");
@@ -26,8 +30,10 @@ function Login() {
       const response = await axios.post("http://localhost:3000/auth/login", formData, {
         withCredentials: true
       });
-      const data = response.data;
-      console.log(data);
+      const { user } = await response.data;
+      setUser(user);
+      console.log(user);
+      navigate("/portfolio");
     } catch (err) {
       console.error(err);
     }
