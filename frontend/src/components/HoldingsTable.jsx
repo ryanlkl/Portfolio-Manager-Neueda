@@ -5,29 +5,29 @@ import { useAuthStore } from '../lib/store';
 import { useNavigate } from 'react-router-dom';
 
 function BasicExample() {
-    const user = useAuthStore((state) => state.user);
-    const portfolioId = user.portfolio.id;
+    // const user = useAuthStore((state) => state.user);
+    // const portfolioId = user.portfolio.id;
     const [holdings, setHoldings] = useState([])
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchHoldings = async () => {
-            try {
-              console.log(user.portfolio.id)
-                const response = await axios.get(`http://localhost:3000/portfolio/${portfolioId}/assets/stocks/`);
-                setHoldings(response.data.stocks);
-                console.log(response.data.stocks);
-            } catch (error) {
-                console.error("Error fetching holdings:", error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchHoldings = async () => {
+    //         try {
+    //           console.log(user.portfolio.id)
+    //             const response = await axios.get(`http://localhost:3000/portfolio/${portfolioId}/assets/stocks/`);
+    //             setHoldings(response.data.stocks);
+    //             console.log(response.data.stocks);
+    //         } catch (error) {
+    //             console.error("Error fetching holdings:", error);
+    //         }
+    //     };
 
-        fetchHoldings();
-    },[])
+    //     fetchHoldings();
+    // },[])
 
-    const handleRowClick = (ticker) => {
-      navigate(`/performance?ticker=${ticker}`)
-    }
+    // const handleRowClick = (ticker) => {
+    //   navigate(`/performance?ticker=${ticker}`)
+    // }
 
   return (
     <Table striped bordered hover>

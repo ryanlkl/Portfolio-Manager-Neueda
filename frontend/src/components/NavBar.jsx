@@ -74,9 +74,13 @@ function NavBar() {
                   <>
                     <NavDropdown.Item href="/account">Profile</NavDropdown.Item>
                     <NavDropdown.Item href="#logout" onClick={handleLogout}>Sign Out</NavDropdown.Item>
+                    <NavDropdown.Item href="/login">Sign In</NavDropdown.Item>
+                    <NavDropdown.Item href="/signup">Register</NavDropdown.Item>
                   </>
                 ) : (
                   <>
+                    <NavDropdown.Item href="/account">Profile</NavDropdown.Item>
+                    <NavDropdown.Item href="#logout" onClick={handleLogout}>Sign Out</NavDropdown.Item>
                     <NavDropdown.Item href="/login">Sign In</NavDropdown.Item>
                     <NavDropdown.Item href="/signup">Register</NavDropdown.Item>
                   </>

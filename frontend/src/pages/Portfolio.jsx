@@ -9,10 +9,10 @@ import StockDistribution from "../components/StockDistribution.jsx";
 import LineGraph from "../components/LineGraph.jsx";
 
 function Portfolio() {
-    const user = useAuthStore((state) => state.user);
-    const portfolioId = user.portfolio.id;
-    const [stocks, setStocks] = useState([]);
-    const [timeSeriesData, setTimeSeriesData] = useState([]);
+    // const user = useAuthStore((state) => state.user);
+    // const portfolioId = user.portfolio.id;
+    // const [stocks, setStocks] = useState([]);
+    // const [timeSeriesData, setTimeSeriesData] = useState([]);
     const [showAssetForm, setShowAssetForm] = useState(false);
 
   const handleSaveAsset = async (asset) => {
@@ -20,35 +20,35 @@ function Portfolio() {
     setShowAssetForm(false);
   };
 
-    useEffect(() => {
-        const fetchPortfolioData = async () => {
-            try {
-                const response = await axios.get(`http://localhost:3000/portfolio/${portfolioId}`)
-                const data = response.data;
-                console.log(data)
-                setStocks(data.stocks);
-            } catch (err) {
-                console.error(err)
-            }
-        } 
+    // useEffect(() => {
+    //     const fetchPortfolioData = async () => {
+    //         try {
+    //             const response = await axios.get(`http://localhost:3000/portfolio/${portfolioId}`)
+    //             const data = response.data;
+    //             console.log(data)
+    //             setStocks(data.stocks);
+    //         } catch (err) {
+    //             console.error(err)
+    //         }
+    //     } 
 
-        fetchPortfolioData();
-    }, [portfolioId])
+    //     fetchPortfolioData();
+    // }, [portfolioId])
 
-    useEffect(() => {
-      const fetchTimeSeriesData = async () => {
-        try {
-          const response = await axios.get(`http://localhost:3000/portfolio/${portfolioId}/history`)
-          const data = response.data;
-          console.log(data)
-          setTimeSeriesData(data.history || []); // <-- fix here
-        } catch (err) {
-          console.error(err)
-        }
-      }
+    // useEffect(() => {
+    //   const fetchTimeSeriesData = async () => {
+    //     try {
+    //       const response = await axios.get(`http://localhost:3000/portfolio/${portfolioId}/history`)
+    //       const data = response.data;
+    //       console.log(data)
+    //       setTimeSeriesData(data.history || []); // <-- fix here
+    //     } catch (err) {
+    //       console.error(err)
+    //     }
+    //   }
 
-      fetchTimeSeriesData();
-    }, [portfolioId])
+    //   fetchTimeSeriesData();
+    // }, [portfolioId])
 
   return (
     <Layout>
@@ -76,7 +76,8 @@ function Portfolio() {
             <section className="section border rounded mb-5">
               <div className="row justify-content-center align-items-center">
                 <div className="col justify-content-center">
-                  <LineGraph data={timeSeriesData} />
+                  LineGraph
+                  {/* <LineGraph data={timeSeriesData} /> */}
                 </div>
               </div>
             </section>
@@ -87,10 +88,12 @@ function Portfolio() {
                   <div className="container p-3">
                     <div className="row">
                       <div className="col-7">
-                        <PieChart stocks={stocks} />
+                        PieChart
+                        {/* <PieChart stocks={stocks} /> */}
                       </div>
                       <div className="col-5">
-                        <StockDistribution stocks={stocks} />
+                        StockDistribution
+                        {/* <StockDistribution stocks={stocks} /> */}
                       </div>
                     </div>
                   </div>
