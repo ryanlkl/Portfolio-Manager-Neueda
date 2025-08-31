@@ -5,6 +5,7 @@ import Term from "./components/terms";
 import Portfolio from "./pages/Portfolio";
 import Account from "./pages/Account";
 import Holdings from "./pages/Holdings";
+import TransactionsPage from "./pages/Transactions";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Performance from "./pages/Performance";
 import axios from "axios";
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/account" element={<Account />} />
         <Route path="/holdings" element={<Holdings />} />
         <Route path="/performance" element={<Performance />} />
+        <Route path="/transactions" element={<TransactionsPage />} />
       </Routes>
     </BrowserRouter>
   );

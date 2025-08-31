@@ -89,6 +89,35 @@ const registerUser = async (req, res) => {
             passwordHash: hashedPassword
         })
         
+        // Portfolio Creation Logic
+        await Portfolio.create({
+            id: uuidv4(),
+            userId: newUser.id,
+            totalValue: 0 // default value
+        })
+
+        const users = await User.findAll({
+            where: {
+                email: email
+            },
+            include: {
+                model: Portfolio,
+                attributes: ["id"]
+            }
+        })
+
+        const user = users[0];
+        const token = await createJWT(newUser.id, newUser.name)
+
+        return res
+            .status(201)
+            .cookie("access_token", token, {httpOnly: true, sameSite: "lax", secure: false})
+            .json({
+            message: "Success",
+            user: user,
+            token: token,
+        })
+
     } catch (err) {
         return res.status(400).json({
             status: "Failed to create user",
@@ -96,15 +125,8 @@ const registerUser = async (req, res) => {
         })
     }
 
-    const token = await createJWT(newUser.id, newUser.name)
-
-    return res
-        .status(201)
-        .cookie("access_token", token, {httpOnly: true, sameSite: "lax", secure: false})
-        .json({
-        message: "Successfully created",
-    })
 }
+
 
 const getCurrentUser = async (req, res) => {
     const user = req.user;

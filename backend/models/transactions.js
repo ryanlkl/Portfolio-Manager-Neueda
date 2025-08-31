@@ -22,6 +22,10 @@ const Transactions = sequelize.define("transactions", {
         type: DataTypes.FLOAT(24),
         allowNull: false,
     },
+    ticker: {
+        type: DataTypes.STRING(10),
+        allowNull: false,
+    }
 })
 
 module.exports = Transactions

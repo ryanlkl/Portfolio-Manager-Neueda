@@ -4,6 +4,7 @@ const transactionRoutes = express.Router({mergeParams: true});
 const {authenticateToken} = require("../middleware/auth");
 
 transactionRoutes.get("/", authenticateToken, transactionController.getAllTransactions);
+transactionRoutes.get("/stock/:sid", authenticateToken, transactionController.getTransactionByStock);
 transactionRoutes.get("/:id", authenticateToken, transactionController.getTransactionById);
 transactionRoutes.post("/", authenticateToken, transactionController.addTransaction);
 
