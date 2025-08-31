@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuthStore } from '../lib/store';
 import { useNavigate } from 'react-router-dom';
+import React from 'react';
 
 function getTheme() {
   if (typeof window !== "undefined") {
@@ -17,6 +18,7 @@ function HoldingsTable() {
   const [holdings, setHoldings] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editQuantity, setEditQuantity] = useState("");
+  const [editError, setEditError] = useState(""); // <-- Add this
   const navigate = useNavigate();
   const [theme, setTheme] = useState(getTheme());
 
@@ -65,6 +67,7 @@ function HoldingsTable() {
   const handleEditClick = (holding) => {
     setEditingId(holding.id);
     setEditQuantity(holding.quantity);
+    setEditError("");
   };
 
   const handleEditChange = (e) => {
@@ -72,6 +75,12 @@ function HoldingsTable() {
   };
 
   const handleEditSave = async (stockId) => {
+    setEditError(""); // Clear previous error
+    // Validate on frontend
+    if (isNaN(Number(editQuantity)) || Number(editQuantity) <= 0) {
+      setEditError("Quantity must be a positive number.");
+      return;
+    }
     try {
       await axios.patch(
         `http://localhost:3000/portfolio/${portfolioId}/assets/stocks/${stockId}`,
@@ -81,8 +90,14 @@ function HoldingsTable() {
         h.id === stockId ? { ...h, quantity: Number(editQuantity) } : h
       ));
       setEditingId(null);
+      setEditError("");
     } catch (error) {
-      console.error("Error updating stock:", error);
+      if (error.response && error.response.data && error.response.data.error) {
+        setEditError(error.response.data.error);
+      } else {
+        setEditError("Error updating stock.");
+      }
+      // Don't exit edit mode if error
     }
   };
 
@@ -172,14 +187,21 @@ function HoldingsTable() {
                 <td style={{ ...cellStyle, color: accent, fontWeight: 600, fontSize: "0.98em" }}>{holding.ticker}</td>
                 <td style={{ ...cellStyle, width: volumeColWidth, minWidth: volumeColWidth, maxWidth: volumeColWidth }}>
                   {editingId === holding.id ? (
-                    <input
-                      type="number"
-                      value={editQuantity}
-                      min={0}
-                      onChange={handleEditChange}
-                      style={{ width: 70, borderRadius: 6, padding: "2px 6px" }}
-                      onClick={e => e.stopPropagation()}
-                    />
+                    <>
+                      <input
+                        type="number"
+                        value={editQuantity}
+                        min={0}
+                        onChange={handleEditChange}
+                        style={{ width: 70, borderRadius: 6, padding: "2px 6px" }}
+                        onClick={e => e.stopPropagation()}
+                      />
+                      {editError && (
+                        <div style={{ color: "#ff6b6b", fontSize: "0.93em", marginTop: 2 }}>
+                          {editError}
+                        </div>
+                      )}
+                    </>
                   ) : (
                     holding.quantity
                   )}
