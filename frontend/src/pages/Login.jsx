@@ -6,7 +6,7 @@ import { useAuthStore } from "../lib/store";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
-  // const setUser = useAuthStore((state) => state.setUser);
+  const setUser = useAuthStore((state) => state.setUser);
   const [formData, setFormData] = useState({
     email: "",
     password: "",

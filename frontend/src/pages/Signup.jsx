@@ -4,11 +4,15 @@ import TermsModal from "../components/terms";
 import "../css/Signup.css";
 import "../css/term.css";
 import axios from "axios";
+import { useAuthStore } from "../lib/store";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
+  const setUser = useAuthStore((state) => state.setUser);
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.body.classList.add("no-sidebar-pad");
@@ -26,7 +30,11 @@ function Signup() {
       const response = await axios.post("http://localhost:3000/auth/register", formData, {
         withCredentials: true,
       });
+      const { user } = await response.data;
+      setUser(user);
+      console.log(user);
       console.log(response.data);
+      navigate("/portfolio")
     } catch (err) {
       console.error(err);
     }

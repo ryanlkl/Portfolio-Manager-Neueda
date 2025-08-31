@@ -1,34 +1,36 @@
 const Transactions = require("../models/transactions");
+const Stocks = require("../models/stocks"); // Add this import
 const { v4: uuidv4 } = require("uuid");
 
-const groupTransactionsByStock = (transactions) => {
-    return;
-}
+const getTransactionByStock = async (req, res) => {
+    const { pid, sid } = req.params;
 
-const groupTransactionsByType = (transactions) => {
-    return;
+    try {
+        const transactions = await Transactions.findAll({
+            where: {
+                portfolioId: pid,
+                stockId: sid
+            }
+        });
+        res.status(200).json(transactions);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error in database" });
+    }
 }
 
 const getAllTransactions = async (req, res) => {
     const { pid } = req.params;
-    console.log("Portfolio id: ", pid);
-
     try {
-        console.log("Fetching transactions");
         const transactions = await Transactions.findAll({
-            where: {
-                portfolioId: pid
-            }
-        })
-
-        console.log("Transactions fetched: ", transactions);
+            where: { portfolioId: pid }
+        });
 
         if (!transactions) return res.status(404).json({ error: "No transactions found" });
 
         res.status(200).json({
-            transactions: transactions
-        })
-
+            transactions // ticker is now included directly
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Error in database" });
@@ -49,14 +51,13 @@ const getTransactionById = async (req, res) => {
 }
 
 const addTransaction = async (portfolioId, stockId, type, ticker, quantity, price, date) => {
-
     try {
         const newTransaction = await Transactions.create({
             id: uuidv4(),
             stockId: stockId,
             portfolioId: portfolioId,
             type: type,
-            ticker: ticker,
+            ticker: ticker, // make sure this is always provided
             quantity: quantity,
             purchasePrice: price,
             date: date
@@ -70,5 +71,6 @@ const addTransaction = async (portfolioId, stockId, type, ticker, quantity, pric
 module.exports = {
     getAllTransactions,
     getTransactionById,
-    addTransaction
+    addTransaction,
+    getTransactionByStock
 }
