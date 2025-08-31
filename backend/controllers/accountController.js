@@ -80,7 +80,7 @@ const editAccount = async (req, res) => {
         })
     }
 
-    return res.status(200).json({
+    return res.status(204).json({
         message: "Success",
         user: user
     })
@@ -106,9 +106,7 @@ const deleteAccount = async (req, res) => {
         })
     }
 
-    return res.status(200).json({
-        message: "Account deleted"
-    })
+    return res.status(204).send();
 }
 
 module.exports = {

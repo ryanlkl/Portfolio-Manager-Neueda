@@ -9,17 +9,13 @@ const { calculateAverageCost, calculateStockPerformance, calculatePortfolioTotal
 // Get all stocks
 const getAllStocks = async (req, res) => {
   const { pid } = req.params;
-  console.log("Portfolio id: ", pid);
 
   try {
-    console.log("Fetching stocks from DB");
     const stocks = await Stock.findAll({
       where: {
         portfolioId: pid
       }
     });
-
-    console.log("Stocks fetched: ", stocks);
 
     if (!stocks) return res.status(404).json({ error: "No stocks found" });
 
@@ -64,25 +60,60 @@ const getStockById = async (req, res) => {
 // Add a stock
 const addStock = async (req, res) => {
   const { pid } = req.params;
-  
   try {
     const { name, ticker, quantity } = req.body;
 
-    const response = await axios.get(FINNHUB_URL, {
-      params: { symbol: ticker, token: FINNHUB_KEY }
-    });
+    // Validate required fields
+    if (!name || !ticker || quantity === undefined) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
 
-    const price = response.data?.c ?? null; // 'c' is the current price
+    // Validate name length
+    if (typeof name !== "string" || name.trim().length < 2 || name.trim().length > 50) {
+      return res.status(400).json({ error: "Name must be 2-50 characters." });
+    }
+
+    // Validate ticker format
+    if (!/^[A-Z0-9]{1,5}$/.test(ticker)) {
+      return res.status(400).json({ error: "Ticker must be 1-5 uppercase letters or numbers." });
+    }
+
+    // Validate quantity
+    const qty = Number(quantity);
+    if (isNaN(qty) || qty <= 0) {
+      return res.status(400).json({ error: "Quantity must be a positive number." });
+    }
+
+    // Check for duplicate ticker in portfolio
+    const existing = await Stock.findOne({ where: { portfolioId: pid, ticker } });
+    if (existing) {
+      return res.status(409).json({ error: "This ticker is already in your portfolio." });
+    }
+
+    // Check ticker existence via Finnhub
+    let response;
+    try {
+      response = await axios.get(FINNHUB_URL, {
+        params: { symbol: ticker, token: FINNHUB_KEY }
+      });
+    } catch (apiErr) {
+      return res.status(502).json({ error: "Error reaching ticker data provider." });
+    }
+    const price = response.data?.c ?? null;
+    if (!price || price === 0) {
+      return res.status(404).json({ error: "Ticker not found. Please check the symbol." });
+    }
+
     const stock = await Stock.create({
       id: uuidv4(),
       name: name,
-      ticker: ticker, 
-      quantity: quantity,
+      ticker: ticker,
+      quantity: qty,
       portfolioId: pid
     });
 
-    await addTransaction(pid, stock.id, "buy", ticker, quantity, price, new Date());
-    await savePortfolioSnapshot(pid)
+    await addTransaction(pid, stock.id, "buy", ticker, qty, price, new Date());
+    await savePortfolioSnapshot(pid);
 
     return res.status(201).json({ message: "Stock added", stockId: stock.id, purchasePrice: price, portfolioId: pid });
   } catch (err) {
@@ -97,43 +128,60 @@ const updateStock = async (req, res) => {
   try {
     const { name, ticker, quantity } = req.body;
 
-    const response = await axios.get(FINNHUB_URL, {
-      params: { symbol: ticker, token: FINNHUB_KEY }
-    });
+    // Validate quantity
+    if (quantity === undefined || isNaN(Number(quantity)) || Number(quantity) <= 0) {
+      return res.status(400).json({ error: "Quantity must be a positive number." });
+    }
 
-    const price = response.data?.c ?? null; // c is the current price
-
-    let type;
+    // Optionally validate ticker and name if you allow editing them
+    if (ticker && !/^[A-Z0-9]{1,5}$/.test(ticker)) {
+      return res.status(400).json({ error: "Ticker must be 1-5 uppercase letters or numbers." });
+    }
+    if (name && (typeof name !== "string" || name.trim().length < 2 || name.trim().length > 50)) {
+      return res.status(400).json({ error: "Name must be 2-50 characters." });
+    }
 
     const existingStock = await Stock.findByPk(id);
+    if (!existingStock) return res.status(404).json({ error: "Stock not found" });
 
     let deltaQuantity;
+    let type;
 
-    if (quantity > existingStock.quantity) {
+    if (Number(quantity) > existingStock.quantity) {
       type = "buy";
-      deltaQuantity = quantity - existingStock.quantity;
-    } else if (quantity < existingStock.quantity) {
+      deltaQuantity = Number(quantity) - existingStock.quantity;
+    } else if (Number(quantity) < existingStock.quantity) {
       type = "sell";
-      deltaQuantity = existingStock.quantity - quantity;
+      deltaQuantity = existingStock.quantity - Number(quantity);
+      if (deltaQuantity > existingStock.quantity) {
+        return res.status(400).json({ error: "Cannot sell more than owned" });
+      }
     } else {
       return res.status(400).json({ error: "Quantity unchanged" });
     }
 
-    if (type === "sell" && deltaQuantity > existingStock.quantity) {
-      return res.status(400).json({ error: "Cannot sell more than owned" });
+    // Get current price
+    let price = null;
+    try {
+      const response = await axios.get(FINNHUB_URL, {
+        params: { symbol: existingStock.ticker, token: FINNHUB_KEY }
+      });
+      price = response.data?.c ?? null;
+    } catch (apiErr) {
+      return res.status(502).json({ error: "Error reaching ticker data provider." });
     }
 
     const [updated] = await Stock.update(
-      { 
-        name: name,
-        ticker: ticker,
-        quantity: quantity,
+      {
+        name: name || existingStock.name,
+        ticker: ticker || existingStock.ticker,
+        quantity: Number(quantity),
       },
       { where: { id: id } }
     );
 
-    await addTransaction(pid, id, type, ticker, deltaQuantity, price, new Date());
-    await savePortfolioSnapshot(pid)
+    await addTransaction(pid, id, type, existingStock.ticker, deltaQuantity, price, new Date());
+    await savePortfolioSnapshot(pid);
 
     if (!updated) return res.status(404).json({ error: "Stock not found" });
     res.status(201).json({ message: "Stock updated", price });
