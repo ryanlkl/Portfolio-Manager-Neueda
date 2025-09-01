@@ -55,7 +55,6 @@ function Account() {
             <hr />
             <h5>Change Password</h5>
             <form onSubmit={handleChangePassword}>
-              {/* Optionally add current password field for verification */}
               {<div className="mb-2">
                 <label>Current Password</label>
                 <input
