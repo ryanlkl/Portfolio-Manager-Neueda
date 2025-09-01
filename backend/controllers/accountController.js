@@ -1,5 +1,7 @@
 const User = require("../models/users");
-const Portfolio = require("../models/portfolio")
+const Portfolio = require("../models/portfolio");
+const bycrypt = require ("bcrypt");
+const { encodePassword } = require("./authController");
 
 const getAllAccounts = async (req, res) => {
     let users;
@@ -61,8 +63,12 @@ const editAccount = async (req, res) => {
         }
         const allowedFields = ["name", "email", "password"];
         const updates = {};
-        allowedFields.forEach((field) => {
-            if (typeof req.body[field] !== "undefined") {
+        allowedFields.forEach(async (field) => {
+            if (typeof req.body[field] !== "undefined") 
+                if (field === "password") {
+                    updates.password = await encodePassword(req.body.password);
+                }
+                else {
                 updates[field] = req.body[field];
             }
         });

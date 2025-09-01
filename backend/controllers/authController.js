@@ -174,5 +174,6 @@ const getCurrentUser = async (req, res) => {
 module.exports = {
     logInUser,
     registerUser,
-    getCurrentUser
+    getCurrentUser,
+    encodePassword
 }
