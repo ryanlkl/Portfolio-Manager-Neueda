@@ -190,7 +190,7 @@ function Signup() {
                   border: `1px solid ${inputBorder}`,
                 }}
               />
-              <small className="text-muted">
+              <small className="text-muted" style={{ color: text }}>
                 Minimum 8 characters, at least one uppercase, one lowercase, one number, and one special character.
               </small>
             </div>
