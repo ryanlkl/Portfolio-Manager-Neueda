@@ -1,10 +1,11 @@
 const Stock = require("../models/stocks");
 const axios = require("axios");
-const { FINNHUB_KEY, FINNHUB_URL } = require("../config");
+const { FINNHUB_KEY, FINNHUB_URL, MARKETSTACK_URL, MARKETSTACK_KEY } = require("../config");
 const { v4: uuidv4 } = require("uuid");
 const { addTransaction } = require("./transactionController");
-const { savePortfolioSnapshot } = require("../service/portfolioService");
+const { savePortfolioSnapshot, saveHistoricalPortfolioSnapshot } = require("../service/portfolioService");
 const { calculateAverageCost, calculateStockPerformance, calculatePortfolioTotal } = require("../service/stockService")
+const YahooFinance = require("yahoo-finance2").default
 
 // Get all stocks
 const getAllStocks = async (req, res) => {
@@ -122,6 +123,73 @@ const addStock = async (req, res) => {
   }
 };
 
+const addHistoricalStock = async (req, res) => {
+  const { pid } = req.params;
+  try {
+    const { name, ticker, quantity, date } = req.body;
+
+    // Validate required fields
+    if (!name || !ticker || quantity === undefined) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
+
+    // Validate name length
+    if (typeof name !== "string" || name.trim().length < 2 || name.trim().length > 50) {
+      return res.status(400).json({ error: "Name must be 2-50 characters." });
+    }
+
+    // Validate ticker format
+    if (!/^[A-Z0-9]{1,5}$/.test(ticker)) {
+      return res.status(400).json({ error: "Ticker must be 1-5 uppercase letters or numbers." });
+    }
+
+    // Validate quantity
+    const qty = Number(quantity);
+    if (isNaN(qty) || qty <= 0) {
+      return res.status(400).json({ error: "Quantity must be a positive number." });
+    }
+
+    // Check for duplicate ticker in portfolio
+    const existing = await Stock.findOne({ where: { portfolioId: pid, ticker: ticker } });
+    if (existing) {
+      existing.update({ quantity: existing.quantity + qty });
+      await addTransaction(pid, existing.id, "buy", ticker, qty, 0, new Date(date));
+      await saveHistoricalPortfolioSnapshot(pid, date);
+      return res.status(200).json({ message: "Stock quantity updated", stockId: existing.id, portfolioId: pid });
+    }
+
+    // Check ticker existence via Finnhub
+    let response;
+    // Get historical price from Yahoo Finance
+    const history = await YahooFinance.historical(ticker, {
+      period1: date,
+      perfiod2: date,
+    })
+
+    console.log("HIST: ", history);
+    const price = history?.[0]?.close ?? null;
+    console.log("PRICE: ", price);
+
+    const stock = await Stock.create({
+      id: uuidv4(),
+      name: name,
+      ticker: ticker,
+      quantity: qty,
+      portfolioId: pid,
+      createdAt: new Date(date),
+      updatedAt: new Date(date)
+    });
+
+    await addTransaction(pid, stock.id, "buy", ticker, qty, price, new Date(date));
+    await saveHistoricalPortfolioSnapshot(pid, date, price);
+
+    return res.status(201).json({ message: "Stock added", stockId: stock.id, purchasePrice: price, portfolioId: pid });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Error adding stock" });
+  }
+}
+
 // Update stock
 const updateStock = async (req, res) => {
   const { pid, id } = req.params;
@@ -133,7 +201,6 @@ const updateStock = async (req, res) => {
       return res.status(400).json({ error: "Quantity must be a positive number." });
     }
 
-    // Optionally validate ticker and name if you allow editing them
     if (ticker && !/^[A-Z0-9]{1,5}$/.test(ticker)) {
       return res.status(400).json({ error: "Ticker must be 1-5 uppercase letters or numbers." });
     }
@@ -224,5 +291,6 @@ module.exports = {
   getStockById,
   getAllStocks,
   updateStock,
-  deleteStock
+  deleteStock,
+  addHistoricalStock
 }

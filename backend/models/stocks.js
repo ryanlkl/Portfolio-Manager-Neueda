@@ -15,7 +15,6 @@ const Stocks = sequelize.define("stocks", {
   ticker: {
     type: DataTypes.STRING(50),
     allowNull: false,
-    unique: true
   },
 
   quantity: {

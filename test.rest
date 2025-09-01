@@ -56,3 +56,5 @@ Content-Type: application/json
 ###
 DELETE http://localhost:3000/portfolio/2023ebcc-fde8-437c-be49-efa4b50b475c/assets/stocks/868a97b3-385f-4007-9a42-852e2ea3fe5d/ HTTP/1.1
 
+###
+GET https://finnhub.io/api/v1/stock/candle?symbol=AAPL&from=1754036950&to=1756718960&token=d2negnhr01qn3vmknsrgd2negnhr01qn3vmknss0 HTTP/1.1

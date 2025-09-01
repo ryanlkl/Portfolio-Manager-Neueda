@@ -51,7 +51,7 @@ function LineGraph({ data }) {
       x: {
         type: 'time',
         time: {
-          unit: 'minute',
+          unit: 'min',
           tooltipFormat: 'yyyy-MM-dd HH:mm',
           displayFormats: {
             minute: 'HH:mm',

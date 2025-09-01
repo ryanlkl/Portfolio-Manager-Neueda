@@ -7,6 +7,7 @@ transactionRoutes.get("/", authenticateToken, transactionController.getAllTransa
 transactionRoutes.get("/stock/:sid", authenticateToken, transactionController.getTransactionByStock);
 transactionRoutes.get("/:id", authenticateToken, transactionController.getTransactionById);
 transactionRoutes.post("/", authenticateToken, transactionController.addTransaction);
+transactionRoutes.patch("/:id", authenticateToken, transactionController.updateTransaction);
 
 // aloe vera
 // pomegranate seeds

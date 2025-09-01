@@ -7,5 +7,7 @@ module.exports = {
     SQL_DB: process.env.SQL_DB,
     JWT_SECRET: process.env.JWT_SECRET,
     FINNHUB_KEY: process.env.FINNHUB_KEY,
-    FINNHUB_URL: process.env.FINNHUB_URL
+    FINNHUB_URL: process.env.FINNHUB_URL,
+    MARKETSTACK_KEY: process.env.MARKETSTACK_KEY,
+    MARKETSTACK_URL: process.env.MARKETSTACK_URL
 }

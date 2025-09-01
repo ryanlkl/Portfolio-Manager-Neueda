@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import AssetForm from "../components/AssetForm.jsx";
+import ExistingForm from "../components/ExistingForm.jsx";
 import "../css/term.css";
 import PieChart from "../components/PieChart.jsx";
 import axios from 'axios';
@@ -23,7 +24,8 @@ function Portfolio() {
   const [stocks, setStocks] = useState([]);
   const [portfolio, setPortfolio] = useState({});
   const [timeSeriesData, setTimeSeriesData] = useState([]);
-  const [showAssetForm, setShowAssetForm] = useState(false);
+  const [showExistingAssetForm, setShowExistingAssetForm] = useState(false);
+  const [showNewAssetForm, setShowNewAssetForm] = useState(false);
 
   // --- Listen for theme changes and force re-render ---
   const [theme, setTheme] = useState(getTheme());
@@ -44,8 +46,13 @@ function Portfolio() {
   const cardBg = isDark ? "#181b20" : "#fff";
   const border = isDark ? "#23272b" : "#dee2e6";
 
-  const handleSaveAsset = async (asset) => {
-    setShowAssetForm(false);
+  const handleSaveNewAsset = async (asset) => {
+    setShowNewAssetForm(false);
+    // Optionally: refetch portfolio data here
+  };
+
+  const handleSaveExistingAsset = async (asset) => {
+    setShowExistingAssetForm(false);
     // Optionally: refetch portfolio data here
   };
 
@@ -103,20 +110,38 @@ function Portfolio() {
           >
             Portfolio Overview
           </h1>
-          <button
-            type="button"
-            className="btn btn-primary"
-            style={{ fontWeight: 600, borderRadius: 20, padding: "8px 24px" }}
-            onClick={() => setShowAssetForm(true)}
-          >
-            + Add Asset
-          </button>
+          <div>
+            <button
+              type="button"
+              className="btn btn-primary mx-4"
+              style={{ fontWeight: 600, borderRadius: 20, padding: "8px 24px" }}
+              onClick={() => setShowExistingAssetForm(true)}
+            >
+              + Add Existing Asset
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ fontWeight: 600, borderRadius: 20, padding: "8px 24px" }}
+              onClick={() => setShowNewAssetForm(true)}
+            >
+              + Add New Asset
+            </button>            
+          </div>
+
         </div>
 
+        <ExistingForm
+          show={showExistingAssetForm}
+          onClose={() => setShowExistingAssetForm(false)}
+          onSave={handleSaveExistingAsset}
+        />
+
+
         <AssetForm
-          show={showAssetForm}
-          onClose={() => setShowAssetForm(false)}
-          onSave={handleSaveAsset}
+          show={showNewAssetForm}
+          onClose={() => setShowNewAssetForm(false)}
+          onSave={handleSaveNewAsset}
         />
 
         <div className="row gx-4 gy-4">

@@ -30,6 +30,7 @@ function AccountSummary({ portfolio }) {
     <div
       className="account-summary"
       style={{
+        position: "sticky",
         background: bg,
         borderRadius: 16,
         padding: "28px 20px 20px 20px",

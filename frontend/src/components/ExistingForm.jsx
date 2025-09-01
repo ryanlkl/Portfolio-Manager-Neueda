@@ -10,7 +10,7 @@ function getTheme() {
   return "dark";
 }
 
-function AssetForm({ show, onClose, onSave, initial = {} }) {
+function ExistingForm({ show, onClose, onSave, initial = {} }) {
   if (!show) return null;
   const user = useAuthStore((state) => state.user);
   const portfolioId = user?.portfolio?.id || user?.portfolioId;
@@ -20,6 +20,9 @@ function AssetForm({ show, onClose, onSave, initial = {} }) {
   const [ticker, setTicker] = useState(initial.ticker || "");
   const [quantity, setQuantity] = useState(
     initial.quantity !== undefined ? String(initial.quantity) : ""
+  );
+  const [date, setDate] = useState(
+    initial.date !== undefined ? String(initial.date) : ""
   );
   const [error, setError] = useState("");
   const [theme, setTheme] = useState(getTheme());
@@ -74,10 +77,11 @@ function AssetForm({ show, onClose, onSave, initial = {} }) {
 
     setLoading(true);
     try {
-      await axios.post(`http://localhost:3000/portfolio/${portfolioId}/assets/stocks`, {
+      await axios.post(`http://localhost:3000/portfolio/${portfolioId}/assets/stocks/historical`, {
         name: id,
         ticker: ticker,
         quantity: quantity,
+        date: date,
         portfolioId: portfolioId
       });
       onSave?.({
@@ -151,7 +155,7 @@ function AssetForm({ show, onClose, onSave, initial = {} }) {
             padding: "20px 24px 12px 24px"
           }}
         >
-          <h4 className="mb-0" style={{ color: text, fontWeight: 700 }}>Add New Asset</h4>
+          <h4 className="mb-0" style={{ color: text, fontWeight: 700 }}>Add Existing Asset</h4>
           <button
             type="button"
             className="asset-close"
@@ -235,6 +239,26 @@ function AssetForm({ show, onClose, onSave, initial = {} }) {
                 }}
               />
             </div>
+            <div className="mb-4">
+              <label htmlFor="asset-date" className="form-label" style={{ color: text, fontWeight: 500 }}>Date</label>
+              <input
+                id="asset-date"
+                className="form-control"
+                type="date"
+                step="any"
+                min="0"
+                placeholder="e.g. 10.3"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                style={{
+                  background: inputBg,
+                  color: text,
+                  border: `1px solid ${inputBorder}`,
+                  borderRadius: 8,
+                  fontWeight: 500
+                }}
+              />
+            </div>
             <div className="d-flex justify-content-end gap-2">
               <button
                 type="button"
@@ -274,4 +298,4 @@ function AssetForm({ show, onClose, onSave, initial = {} }) {
   );
 }
 
-export default AssetForm;
+export default ExistingForm;

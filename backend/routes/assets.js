@@ -9,6 +9,7 @@ assetRoutes.get("/stocks/:id", authenticateToken, stockController.getStockById)
 assetRoutes.post("/stocks/", authenticateToken, stockController.addStock);
 assetRoutes.patch("/stocks/:id", authenticateToken, stockController.updateStock);
 assetRoutes.delete("/stocks/:id", authenticateToken, stockController.deleteStock);
+assetRoutes.post("/stocks/historical", authenticateToken, stockController.addHistoricalStock);
 
 
 // assetRoutes.get("/bonds/", assetController.getAllBonds)

@@ -1,9 +1,12 @@
 const axios = require("axios");
 const Stock = require("../models/stocks");
-const { FINNHUB_KEY, FINNHUB_URL } = require("../config");
+const { FINNHUB_KEY, FINNHUB_URL, MARKETSTACK_URL, MARKETSTACK_KEY } = require("../config");
 const PortfolioHistory = require("../models/portfolioHistory");
 const { v4: uuidv4 } = require("uuid");
 const { calculateAverageCost } = require("./stockService"); // Add this import
+const Transactions = require("../models/transactions");
+const { Op } = require("sequelize");
+const Yahoo = require("yahoo-finance2").default;
 
 const getPortfolioPerformance = async (portfolioId) => {
     const stocks = await Stock.findAll({ where: {portfolioId: portfolioId}});
@@ -96,6 +99,78 @@ const savePortfolioSnapshot = async (portfolioId) => {
     }
 }
 
+const recalculateHistoricalSnapshot = async(portfolioId, snapshotDate) => {
+    const snapshotDay = new Date(snapshotDate);
+    const startOfDay = new Date(snapshotDate.getFullYear(), snapshotDate.getMonth(), snapshotDate.getDate());
+    const endOfDay = new Date(snapshotDate.getFullYear(), snapshotDate.getMonth(), snapshotDate.getDate(), 23, 59, 59, 999);
+    const transactions = await Transactions.findAll({
+        where: {
+            portfolioId,
+            createdAt: { [Op.between]: [startOfDay, endOfDay]}
+        }
+    });
+    const holdings = {};
+    transactions.forEach(tx => {
+        if (!holdings[tx.stockId]) {
+            holdings[tx.stockId] = { quantity: 0, totalCost: 0}
+        }
+        holdings[tx.stockId].quantity += tx.quantity;
+        holdings[tx.stockId].totalCost += tx.quantity * tx.purchasePrice;
+    });
+
+    let totalValue = 0;
+    let totalCost = 0;
+
+    for (const stockId in holdings) {
+        const stock = await Stock.findOne({ where: { id: stockId}})
+        if (!stock) continue;
+        const snapshotDateOnly = new Date(snapshotDate);
+        const history = await YahooFinance.historical(stock.ticker, {
+            period1: startOfDay,
+            period2: new Date(startOfDay).setDate(startOfDay.getDate() + 1),
+        });
+
+        const histPrice = history?.[0]?.close ?? 0;
+        totalValue += holdings[stockId].quantity * histPrice;
+        totalCost += holdings[stockId].totalCost;
+    }
+    return { totalValue, totalCost, totalGainLoss: totalValue - totalCost}
+}
+
+const saveHistoricalPortfolioSnapshot = async (portfolioId, date) => {
+    try {
+
+        const snapshotDate = new Date(date);
+        const { totalValue, totalCost, totalGainLoss } = await recalculateHistoricalSnapshot(portfolioId, snapshotDate);
+
+        console.log("CALCULATED VALUES: ", totalValue, totalCost, totalGainLoss);
+        let snapshot = await PortfolioHistory.findOne({
+            where: {
+                portfolioId,
+                date: snapshotDate
+            }
+        });
+
+        if (snapshot) {
+            await snapshot.update({
+                totalValue,
+                totalCost,
+            })
+        } else {
+            await PortfolioHistory.create({
+                id: uuidv4(),
+                totalValue,
+                totalCost,
+                totalGainLoss,
+                date: snapshotDate,
+                portfolioId
+            });
+        }
+    } catch (err) {
+        console.error("Error saving historic snapshot: ", err)
+    }
+}
+
 // Fetch historical snapshots for graphing
 const getPortfolioHistory = async (portfolioId) => {
     const history = await PortfolioHistory.findAll({
@@ -109,5 +184,6 @@ const getPortfolioHistory = async (portfolioId) => {
 module.exports = {
     getPortfolioPerformance,
     savePortfolioSnapshot,
-    getPortfolioHistory // <-- export the new function
+    getPortfolioHistory,
+    saveHistoricalPortfolioSnapshot
 }
