@@ -68,7 +68,7 @@ function AccountSummary({ portfolio }) {
         }}
       >
         <p style={{ marginBottom: 4, color: subText, fontWeight: 500, fontSize: "1em" }}>
-          Account Balance
+          Portfolio Balance
         </p>
         <h3 style={{ fontWeight: 700, color: accent, margin: 0 }}>
           ${format2dp(portfolio.totalValue || 0)}
@@ -81,7 +81,6 @@ function AccountSummary({ portfolio }) {
             portfolio.stocks.map((stock) => (
               <li key={stock.id} style={{ marginBottom: 14 }}>
                 <div
-                  className="list-group-item"
                   style={{
                     background: cardBg,
                     borderRadius: 8,
