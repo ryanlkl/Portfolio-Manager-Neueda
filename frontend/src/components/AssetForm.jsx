@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useAuthStore } from "../lib/store";
+import { useNavigate } from "react-router-dom";
 
 function getTheme() {
   if (typeof window !== "undefined") {
@@ -13,6 +14,7 @@ function AssetForm({ show, onClose, onSave, initial = {} }) {
   if (!show) return null;
   const user = useAuthStore((state) => state.user);
   const portfolioId = user?.portfolio?.id || user?.portfolioId;
+  const navigate = useNavigate();
 
   const [id, setId] = useState(initial.id || "");
   const [ticker, setTicker] = useState(initial.ticker || "");
@@ -84,6 +86,7 @@ function AssetForm({ show, onClose, onSave, initial = {} }) {
         quantity: quantity === "" ? "" : parseFloat(quantity),
       });
       onClose();
+      window.location.reload(false);
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
         if (error.response.status === 409) {

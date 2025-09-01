@@ -6,9 +6,9 @@ export const useAuthStore = create(
         (set) => ({
             user: null,
             portfolioId: null,
-            setUser: (user) => set({ user, isLoggedIn: true }), // removed isLoggedIn
+            setUser: (user) => set({ user, isLoggedIn: true }),
             logout: async () => {
-                set({ user: null, isLoggedIn: false }) // removed isLoggedIn
+                set({ user: null, isLoggedIn: false })
             }
         }),
         {
