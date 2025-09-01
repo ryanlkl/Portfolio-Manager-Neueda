@@ -54,32 +54,15 @@ const editAccount = async (req, res) => {
     let user;
 
     try {
+        const { name, email, password } = req.body;
         user = await User.findByPk(id);
 
-        if (!user) {
-            return res.status(404).json({
-                error: "Account not found"
-            })
-        }
-        const allowedFields = ["name", "email", "password"];
-        const updates = {};
-        allowedFields.forEach(async (field) => {
-            if (typeof req.body[field] !== "undefined") 
-                if (field === "password") {
-                    updates.password = await encodePassword(req.body.password);
-                }
-                else {
-                updates[field] = req.body[field];
-            }
-        });
-
-        if (Object.keys(updates).length === 0) {
-            return res.status(400).json({
-                error: "No valid fields given"
-            })
-        }
-
-        await user.update(updates);
+        await user.update({
+            name: name || user.name,
+            email: email || user.email,
+            passwordHash: await encodePassword(password) || user.passwordHash
+        })
+        
     } catch (err) {
         return res.status(500).json({
             error: "Error when updating account"

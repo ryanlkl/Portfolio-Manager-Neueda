@@ -19,7 +19,7 @@ function Account() {
       return;
     }
     try {
-      await axios.put(
+      await axios.patch(
         `http://localhost:3000/accounts/${user.id}`,
         {
           password: newPassword,
