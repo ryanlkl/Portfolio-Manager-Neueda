@@ -5,7 +5,9 @@ const assignRequestTime = (req, res, next) => {
 }
 
 const logger = (req, res, next) => {
-    console.log(`${req.requestTime}: ${req.method} ${req.path} from ${JSON.stringify(req.headers["user-agent"])}`)
+    console.log(`${req.requestTime}: ${req.statusCode} ${req.method} ${req.path} from ${JSON.stringify(req.headers["user-agent"])}`)
+
+    next()
 }
 
 module.exports = {

@@ -1,0 +1,268 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Portfolio Manager API",
+    "version": "1.0.0",
+    "description": "API documentation for the Portfolio Manager backend."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "email": { "type": "string", "format": "email" },
+          "name": { "type": "string" }
+        },
+        "required": ["id", "email"]
+      },
+      "Portfolio": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "userId": { "type": "integer" }
+        },
+        "required": ["id", "name", "userId"]
+      },
+      "Stock": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "ticker": { "type": "string" },
+          "name": { "type": "string" },
+          "quantity": { "type": "number" },
+          "portfolioId": { "type": "integer" }
+        },
+        "required": ["id", "ticker", "quantity", "portfolioId"]
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "portfolioId": { "type": "integer" },
+          "stockId": { "type": "integer" },
+          "type": { "type": "string", "enum": ["buy", "sell"] },
+          "quantity": { "type": "number" },
+          "price": { "type": "number" },
+          "date": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "portfolioId", "stockId", "type", "quantity", "price", "date"]
+      },
+      "AuthRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" },
+          "name": { "type": "string" }
+        },
+        "required": ["email", "password"]
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string" },
+          "user": { "$ref": "#/components/schemas/User" }
+        },
+        "required": ["token", "user"]
+      }
+    }
+  },
+  "security": [{ "bearerAuth": [] }],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AuthRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "User registered", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
+          "400": { "description": "Invalid input" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Login a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AuthRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login successful", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } } },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/accounts/me": {
+      "get": {
+        "summary": "Get current user account",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "User account info", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/portfolio": {
+      "get": {
+        "summary": "Get all portfolios for the current user",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "List of portfolios", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Portfolio" } } } } }
+        }
+      }
+    },
+    "/portfolio/{id}": {
+      "get": {
+        "summary": "Get a portfolio by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Portfolio details", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Portfolio" } } } },
+          "404": { "description": "Portfolio not found" }
+        }
+      }
+    },
+    "/portfolio/{id}/assets/stocks": {
+      "get": {
+        "summary": "Get all stocks in a portfolio",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "List of stocks", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Stock" } } } } }
+        }
+      },
+      "post": {
+        "summary": "Add a stock to a portfolio",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ticker": { "type": "string" },
+                  "name": { "type": "string" },
+                  "quantity": { "type": "number" }
+                },
+                "required": ["ticker", "quantity"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Stock added", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Stock" } } } }
+        }
+      }
+    },
+    "/portfolio/{id}/assets/stocks/{stockId}": {
+      "patch": {
+        "summary": "Update a stock's quantity",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "stockId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "quantity": { "type": "number" }
+                },
+                "required": ["quantity"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Stock updated", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Stock" } } } },
+          "404": { "description": "Stock not found" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a stock from a portfolio",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "stockId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Stock deleted" },
+          "404": { "description": "Stock not found" }
+        }
+      }
+    },
+    "/portfolio/{id}/transactions": {
+      "get": {
+        "summary": "Get all transactions for a portfolio",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "List of transactions", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Transaction" } } } } }
+        }
+      }
+    },
+    "/portfolio/{id}/transactions/stock/{stockId}": {
+      "get": {
+        "summary": "Get all transactions for a specific stock in a portfolio",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "stockId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "List of transactions for the stock", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Transaction" } } } } }
+        }
+      }
+    },
+    "/portfolio/{id}/history": {
+      "get": {
+        "summary": "Get portfolio value history",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Portfolio history", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/PortfolioHistory" } } } } }
+        }
+      }
+    }
+  }
+}

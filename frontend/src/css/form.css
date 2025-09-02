@@ -1,0 +1,108 @@
+/* ASSET FORM MODAL */
+.asset-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+/* -- modal card -- */
+.asset-modal {
+  width: min(820px, 92vw);
+  background: #5d2d90 !important; 
+  border-radius: 16px;
+  border: 2px solid rgba(109, 40, 217, 0.22);
+  box-shadow:
+    0 0 0 10px rgba(109, 40, 217, 0.08),
+    0 28px 70px rgba(17, 24, 39, 0.18);
+}
+
+/* -- header -- */
+.asset-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f3f7;
+}
+
+.asset-close {
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  color: #6b7280;
+  cursor: pointer;
+}
+.asset-close:hover { color: #111827; }
+
+/* -- body -- */
+.asset-body {
+  padding: 16px 20px;
+  max-height: 60vh;
+  overflow: auto;
+  color: #374151;
+}
+.asset-body h5 { margin-top: 1rem; }
+
+/* label text color */
+.asset-modal .form-label {
+  color: #ffffff; 
+}
+
+
+.asset-muted { color: #6b7280; }
+
+/* Make the inputsss light purple inside this modal */
+.asset-modal .form-control,
+.asset-modal .form-select,
+.asset-modal textarea.form-control {
+  background-color: #f5f0ff !important; 
+  border: 1.5px solid rgba(109, 40, 217, 0.25);
+  color: #111827;
+  border-radius: 12px;
+  height: 44px;
+  padding: 10px 14px;
+}
+
+.asset-modal .form-control::placeholder {
+  color: #9ca3af;
+}
+
+.asset-modal .form-control:focus,
+.asset-modal .form-select:focus,
+.asset-modal textarea.form-control:focus {
+  background-color: #f5f0ff !important;
+  border-color: #6d28d9;
+  box-shadow: 0 0 0 4px rgba(109, 40, 217, 0.12);
+  outline: none;
+}
+
+/* -- footer -- */
+.asset-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 20px;
+  border-top: 1px solid #f1f3f7;
+}
+
+.asset-action {
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+
+  background: linear-gradient(90deg, #6d28d9, #5b21b6);
+  box-shadow: 0 8px 20px rgba(109, 40, 217, 0.25);
+}
+.asset-action:hover { filter: brightness(0.98); }
+.asset-action:active { box-shadow: 0 6px 14px rgba(109, 40, 217, 0.18); }

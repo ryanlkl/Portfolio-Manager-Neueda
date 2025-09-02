@@ -1,0 +1,126 @@
+:root {
+  --pm-bg: #0f172a;         
+  --pm-surface: #111827;    
+  --pm-muted: #1f2937;       
+  --pm-text: #e5e7eb;       
+  --pm-text-muted: #9ca3af;   
+  --pm-green: #22c55e;       
+  --pm-purple-1: #8b5cf6;     
+  --pm-purple-2: #6d28d9;     
+  --pm-radius: 1rem;
+}
+
+.pm-page {
+  min-height: 100dvh;
+  color: var(--pm-text);
+  background: radial-gradient(1200px 600px at 70% -10%, #1b2338 0%, var(--pm-bg) 45%) fixed;
+}
+
+/* Navbar */
+.pm-navbar {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid #1f2937;
+}
+
+.brand-accent {
+  color: var(--pm-green) !important;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.navbar .nav-link {
+  color: #cbd5e1;
+}
+.navbar .nav-link:hover {
+  color: #ffffff;
+}
+
+/* Buttons */
+.pm-btn-cta {
+  background: linear-gradient(135deg, var(--pm-purple-1), var(--pm-purple-2));
+  border: none;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(109, 40, 217, 0.35);
+}
+.pm-btn-cta:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+.pm-btn-outline {
+  border: 1px solid #334155;
+  color: #e5e7eb;
+  background: transparent;
+}
+
+/* Hero */
+.pm-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(31, 41, 55, 0.35), rgba(17, 24, 39, 0.65));
+  border-radius: var(--pm-radius);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(148, 163, 184, 0.05);
+}
+.pm-glow {
+  position: absolute;
+  inset: auto -10% -40% -10%;
+  height: 320px;
+  filter: blur(60px);
+  background: radial-gradient(closest-side, rgba(139, 92, 246, 0.35), transparent 70%);
+  pointer-events: none;
+}
+
+.pm-chip {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid #334155;
+  background: #0b1220;
+  color: #a3a3a3;
+  font-size: 0.85rem;
+}
+
+/* Sections & cards */
+.pm-section {
+  padding: 4rem 0;
+}
+.pm-card {
+  background: var(--pm-surface);
+  border: 1px solid #1f2937;
+  border-radius: var(--pm-radius);
+}
+.pm-icon-badge {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #0b1220;
+  border: 1px solid #334155;
+  color: var(--pm-green);
+  font-weight: 700;
+}
+.pm-mini-stat {
+  background: var(--pm-muted);
+  border: 1px solid #243041;
+  border-radius: 0.8rem;
+}
+
+/* Progress accents */
+.pm-progress-1 {
+  background: linear-gradient(90deg, var(--pm-purple-1), var(--pm-purple-2));
+}
+.pm-progress-2 {
+  background: #16a34a; 
+}
+.pm-progress-3 {
+  background: #06b6d4; 
+}
+
+/* Footer */
+.pm-footer {
+  border-top: 1px solid #1f2937;
+  color: var(--pm-text-muted);
+}
