@@ -86,7 +86,6 @@ function AssetForm({ show, onClose, onSave, initial = {} }) {
         quantity: quantity === "" ? "" : parseFloat(quantity),
       });
       onClose();
-      window.location.reload(false);
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
         if (error.response.status === 409) {

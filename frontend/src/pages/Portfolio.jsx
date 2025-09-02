@@ -19,13 +19,13 @@ function getTheme() {
 
 function Portfolio() {
   const user = useAuthStore((state) => state.user);
-  // Use optional chaining and fallback for portfolioId
   const portfolioId = user?.portfolio?.id || user?.portfolioId || null;
   const [stocks, setStocks] = useState([]);
   const [portfolio, setPortfolio] = useState({});
   const [timeSeriesData, setTimeSeriesData] = useState([]);
   const [showExistingAssetForm, setShowExistingAssetForm] = useState(false);
   const [showNewAssetForm, setShowNewAssetForm] = useState(false);
+  const [portfolioLoading, setPortfolioLoading] = useState(false);
 
   // --- Listen for theme changes and force re-render ---
   const [theme, setTheme] = useState(getTheme());
@@ -46,54 +46,64 @@ function Portfolio() {
   const cardBg = isDark ? "#181b20" : "#fff";
   const border = isDark ? "#23272b" : "#dee2e6";
 
-  const handleSaveNewAsset = async (asset) => {
-    setShowNewAssetForm(false);
-    // Optionally: refetch portfolio data here
-  };
-
-  const handleSaveExistingAsset = async (asset) => {
-    setShowExistingAssetForm(false);
-    // Optionally: refetch portfolio data here
-  };
-
-  useEffect(() => {
+  // 1. Define fetch functions outside useEffect
+  const fetchPortfolioData = async () => {
     if (!portfolioId) {
       setPortfolio({});
       setStocks([]);
       return;
     }
-    const fetchPortfolioData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3000/portfolio/${portfolioId}`)
-        const data = response.data;
-        setStocks(data.stocks || []);
-        setPortfolio(data || {});
-      } catch (err) {
-        setPortfolio({});
-        setStocks([]);
-        console.error(err)
-      }
+    setPortfolioLoading(true);
+    try {
+      const response = await axios.get(`http://localhost:3000/portfolio/${portfolioId}`);
+      const data = response.data;
+      setStocks(data.stocks || []);
+      setPortfolio(data || {});
+    } catch (err) {
+      setPortfolio({});
+      setStocks([]);
+      console.error(err);
+    } finally {
+      setPortfolioLoading(false);
     }
-    fetchPortfolioData();
-  }, [portfolioId])
+  };
 
-  useEffect(() => {
+  const fetchTimeSeriesData = async () => {
     if (!portfolioId) {
       setTimeSeriesData([]);
       return;
     }
-    const fetchTimeSeriesData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3000/portfolio/${portfolioId}/history`)
-        const data = response.data;
-        setTimeSeriesData(data.history || []);
-      } catch (err) {
-        setTimeSeriesData([]);
-        console.error(err)
-      }
+    try {
+      const response = await axios.get(`http://localhost:3000/portfolio/${portfolioId}/history`);
+      const data = response.data;
+      setTimeSeriesData(data.history || []);
+    } catch (err) {
+      setTimeSeriesData([]);
+      console.error(err);
     }
-    fetchTimeSeriesData();
-  }, [portfolioId])
+  };
+
+  // 2. useEffect just calls these on mount/portfolioId change
+  useEffect(() => {
+    if (portfolioId) fetchPortfolioData();
+  }, [portfolioId]);
+
+  useEffect(() => {
+    if (portfolioId) fetchTimeSeriesData();
+  }, [portfolioId]);
+
+  // 3. Call fetch functions after saving
+  const handleSaveNewAsset = async (asset) => {
+    setShowNewAssetForm(false);
+    await fetchPortfolioData();
+    await fetchTimeSeriesData();
+  };
+
+  const handleSaveExistingAsset = async (asset) => {
+    setShowExistingAssetForm(false);
+    await fetchPortfolioData();
+    await fetchTimeSeriesData();
+  };
 
   return (
     <Layout>
@@ -187,7 +197,11 @@ function Portfolio() {
 
           {/* Right Sidebar */}
           <div className="col-lg-3">
-            <AccountSummary portfolio={portfolio} />
+            {portfolioLoading ? (
+              <div>Loading...</div>
+            ) : (
+              <AccountSummary portfolio={portfolio} />
+            )}
           </div>
         </div>
       </div>

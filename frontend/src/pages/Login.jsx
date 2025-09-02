@@ -57,6 +57,7 @@ function Login() {
       });
       const { user } = response.data;
       setUser(user);
+      console.log(user)
       navigate("/portfolio");
     } catch (err) {
       if (err.response) {

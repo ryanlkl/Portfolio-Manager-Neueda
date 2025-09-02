@@ -1,4 +1,5 @@
-import { useAuthStore } from "../lib/store"
+import { useAuthStore } from "../lib/store";
+import { useEffect } from 'react'
 
 function format2dp(num) {
   return Number(num).toFixed(2);
@@ -25,6 +26,10 @@ function AccountSummary({ portfolio }) {
   const accent = isDark ? "#51cf66" : "#198754";
   const gainBg = isDark ? "#2d6a4f" : "#d1fae5";
   const lossBg = isDark ? "#7c2d12" : "#fee2e2";
+
+  useEffect(() => {
+    console.log("Portfolio: ", portfolio)
+  }, [])
 
   return (
     <div
@@ -69,7 +74,7 @@ function AccountSummary({ portfolio }) {
         }}
       >
         <p style={{ marginBottom: 4, color: subText, fontWeight: 500, fontSize: "1em" }}>
-          Portfolio Balance
+          Portfolio Value
         </p>
         <h3 style={{ fontWeight: 700, color: accent, margin: 0 }}>
           ${format2dp(portfolio.totalValue || 0)}
@@ -113,15 +118,15 @@ function AccountSummary({ portfolio }) {
                       minWidth: 56,
                       padding: "2px 12px",
                       borderRadius: 16,
-                      background: stock.dailyChangePct >= 0 ? gainBg : lossBg,
+                      background: stock.avgPctChange >= 0 ? gainBg : lossBg,
                       color: isDark ? "#fff" : "#23272b",
                       fontWeight: 500,
                       textAlign: "center",
                       fontSize: "0.85em"
                     }}
                   >
-                    {stock.dailyChangePct >= 0 ? "+" : ""}
-                    {Number(stock.dailyChangePct).toFixed(2)}%
+                    {stock.avgPctChange >= 0 ? "+" : ""}
+                    {Number(stock.avgPctChange).toFixed(2)}%
                   </span>
                 </div>
               </li>

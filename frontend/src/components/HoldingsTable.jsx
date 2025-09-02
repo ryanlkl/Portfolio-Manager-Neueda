@@ -29,7 +29,7 @@ function HoldingsTable() {
     }
     const fetchHoldings = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/portfolio/${portfolioId}/assets/stocks/`);
+        const response = await axios.get(`http://localhost:3000/portfolio/${portfolioId}/`);
         setHoldings(response.data.stocks || []);
       } catch (error) {
         setHoldings([]);
@@ -160,7 +160,6 @@ function HoldingsTable() {
       >
         <thead>
           <tr>
-            <th style={{ ...cellStyle, width: nameColWidth, minWidth: nameColWidth, maxWidth: nameColWidth }}>Stock Name</th>
             <th style={{ ...cellStyle, width: tickerColWidth, minWidth: tickerColWidth, maxWidth: tickerColWidth }}>Ticker</th>
             <th style={{ ...cellStyle, width: volumeColWidth, minWidth: volumeColWidth, maxWidth: volumeColWidth }}>Volume</th>
             <th style={cellStyle}>Total Value</th>
@@ -183,7 +182,6 @@ function HoldingsTable() {
                 style={{ cursor: 'pointer', ...cellStyle }}
                 onClick={() => handleRowClick(holding.ticker, holding.id)}
               >
-                <td style={{ ...cellStyle, fontWeight: 500, fontSize: "0.98em" }}>{holding.name}</td>
                 <td style={{ ...cellStyle, color: accent, fontWeight: 600, fontSize: "0.98em" }}>{holding.ticker}</td>
                 <td style={{ ...cellStyle, width: volumeColWidth, minWidth: volumeColWidth, maxWidth: volumeColWidth }}>
                   {editingId === holding.id ? (
@@ -214,15 +212,15 @@ function HoldingsTable() {
                       minWidth: 60,
                       padding: "2px 10px",
                       borderRadius: 16,
-                      background: holding.gainLoss >= 0 ? gainBg : lossBg,
+                      background: holding.avgPctChange >= 0 ? gainBg : lossBg,
                       color: isDark ? "#fff" : "#23272b",
                       fontWeight: 500,
                       textAlign: "center",
                       fontSize: "0.95em"
                     }}
                   >
-                    {holding.gainLoss >= 0 ? "+" : ""}
-                    {Number(holding.gainLoss).toFixed(2)}%
+                    {holding.avgPctChange >= 0 ? "+" : ""}
+                    {Number(holding.avgPctChange).toFixed(2)}%
                   </span>
                 </td>
                 <td

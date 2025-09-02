@@ -5,7 +5,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import '../css/navBar.css';
 import { useAuthStore } from '../lib/store';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 // Add sun and moon SVGs
 const SunIcon = (
@@ -108,7 +108,8 @@ function NavBar() {
           <Navbar.Collapse id="responsive-navbar-nav" className="d-flex flex-column">
             <Nav className="flex-column w-100">
               <Nav.Link
-                href="/portfolio"
+                as={Link}
+                to="/portfolio"
                 style={{
                   color: linkColor,
                   fontWeight: 600,
@@ -121,7 +122,8 @@ function NavBar() {
                 Portfolio
               </Nav.Link>
               <Nav.Link
-                href="/holdings"
+                as={Link}
+                to="/holdings"
                 style={{
                   color: linkColor,
                   fontWeight: 600,
@@ -134,7 +136,8 @@ function NavBar() {
                 Holdings
               </Nav.Link>
               <Nav.Link
-                href="/transactions"
+                as={Link}
+                to="/transactions"
                 style={{
                   color: linkColor,
                   fontWeight: 600,
@@ -156,7 +159,7 @@ function NavBar() {
                 align="start"
                 className="w-100"
                 renderMenuOnMount
-                popperConfig={{
+                popperconfig={{
                   strategy: 'fixed',
                   modifiers: [
                     { name: 'offset', options: { offset: [0, 6] } },

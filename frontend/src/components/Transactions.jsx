@@ -22,7 +22,7 @@ function Transactions({ portfolioId, stockId }) {
       }
     };
     fetchTransactionsByStock();
-  }, [stockId, portfolioId]);
+  }, []);
 
   useEffect(() => {
     const updateTheme = () => setTheme(getTheme());
@@ -75,15 +75,13 @@ function Transactions({ portfolioId, stockId }) {
                 fontSize: "0.9em",
                 color: subText
               }}>
-                {new Date(tx.createdAt).toLocaleString()}
+                {new Date(tx.date).toLocaleString()}
               </span>
             </div>
             <div style={{ marginTop: 6, display: "flex", gap: 24 }}>
               <span><strong>Qty:</strong> {tx.quantity}</span>
               <span><strong>Price:</strong> ${tx.purchasePrice}</span>
-              <span style={{ fontSize: "0.85em", color: subText }}>
-                <strong>ID:</strong> {tx.id}
-              </span>
+
             </div>
           </li>
         ))}
