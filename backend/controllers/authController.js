@@ -75,6 +75,8 @@ const logInUser = async (req, res) => {
 
         const token = await createJWT(user.id, user.name);
 
+        console.log("User logged in: ", user.id);
+
         return res.status(201)
             .cookie("access_token", token, { httpOnly: true, sameSite: "lax", secure: false })
             .json({

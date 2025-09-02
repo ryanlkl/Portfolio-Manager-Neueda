@@ -1,8 +1,10 @@
 const Transactions = require("../models/transactions");
-const Stocks = require("../models/stocks"); // Add this import
+const Stocks = require("../models/stocks");
 const { v4: uuidv4 } = require("uuid");
-const { savePortfolioSnapshot } = require("../service/portfolioService");
+const { savePortfolioSnapshot, saveHistoricalPortfolioSnapshot } = require("../service/portfolioService");
 const PortfolioHistory = require("../models/portfolioHistory");
+const { Op } = require("sequelize");
+const { startOfDay } = require("date-fns"); // npm install date-fns if not present
 
 const getTransactionByStock = async (req, res) => {
     const { pid, sid } = req.params;
@@ -64,73 +66,74 @@ const addTransaction = async (portfolioId, stockId, type, ticker, quantity, pric
             purchasePrice: price,
             date: date
         });
+
+        console.log(await Transactions.findByPk(newTransaction.id))
         return true
     } catch (err) {
+        console.error("Error when adding transaction: ", err);
         return false
     }
 }
+
 
 const updateTransaction = async (req, res) => {
     const { pid, id } = req.params;
     const { type, quantity } = req.body;
 
-    // Update Transaction
-
     try {
         const transaction = await Transactions.findByPk(id);
-
         if (!transaction) {
-            return res.status(404).json({
-                error: "Transaction not found"
-            })
+            return res.status(404).json({ error: "Transaction not found" });
         }
-        const prevType = transaction.type
-        const prevQuantity = transaction.quantity
-        const purchasePrice = transaction.purchasePrice
-        const txDate = transaction.createdAt
+        const prevType = transaction.type;
+        const prevQuantity = transaction.quantity;
+        const purchasePrice = transaction.purchasePrice;
 
-        const finalType = type || transaction.type
-        const finalQuantity = quantity || transaction.quantity
+        // Allow editing both type and quantity
+        const finalType = type || prevType;
+        const finalQuantity = quantity || prevQuantity;
 
+        // Calculate stock quantity change
+        // Remove the effect of the old transaction, then apply the new one
+        // For buy: stock increases by quantity; for sell: stock decreases by quantity
+        let stockDelta = 0;
+        // Undo previous transaction
+        if (prevType === "buy") {
+            stockDelta -= prevQuantity;
+        } else if (prevType === "sell") {
+            stockDelta += prevQuantity;
+        }
+        // Apply new transaction
+        if (finalType === "buy") {
+            stockDelta += finalQuantity;
+        } else if (finalType === "sell") {
+            stockDelta -= finalQuantity;
+        }
+
+        // Update transaction
         await transaction.update({
             type: finalType,
             quantity: finalQuantity,
         });
-        // Update Stock Quantity if change in type of quantity
+        await transaction.reload();
 
-        const prevValue = (prevType === "buy" ? prevQuantity : -prevQuantity);
-        const newValue = (type === "buy" ? finalQuantity : -finalQuantity);
-        const quantityChange = newValue - prevValue;
-
+        // Update stock
         const stock = await Stocks.findByPk(transaction.stockId);
         if (!stock) {
-            return res.status(404).json({
-                error: "Stock not found"
-            })
+            return res.status(404).json({ error: "Stock not found" });
         }
-        
-        stock.update({
-            quantity: stock.quantity + quantityChange
-        })
-
-        // Update Portfolio Snapshots
-        const snapshots = await PortfolioHistory.findAll({
-            where: {
-                portfolioId: pid,
-                date: { [Op.gte]: txDate }
-            }
-        })
-
-        const deltaAmount = quantityChange * purchasePrice
-        for (let snapshot of snapshots) {
-            await snapshot.update({
-                totalValue: snapshot.totalValue + deltaAmount,
-                totalCost: snapshot.totalCost + deltaAmount,
-                totalGainLoss: snapshot.totalGainLoss + deltaAmount
-            })
+        const newStockQty = stock.quantity + stockDelta;
+        if (newStockQty < 0) {
+            return res.status(400).json({ error: "Stock quantity cannot be negative" });
         }
+        await stock.update({ quantity: newStockQty });
 
-        res.status(200).json({ message: "Transaction updated" });
+        // Recalculate all portfolio history snapshots from the transaction date to today (handled by service)
+        const txDate = new Date(transaction.date);
+        txDate.setHours(0, 0, 0, 0);
+        await saveHistoricalPortfolioSnapshot(pid, txDate);
+
+        res.status(200).json({ message: "Transaction and portfolio history updated" });
 
     } catch (err) {
         console.error(err);

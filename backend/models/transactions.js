@@ -25,6 +25,10 @@ const Transactions = sequelize.define("transactions", {
     ticker: {
         type: DataTypes.STRING(10),
         allowNull: false,
+    },
+    date: {
+        type: DataTypes.DATE,
+        allowNull: false,
     }
 })
 

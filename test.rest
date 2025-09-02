@@ -13,7 +13,7 @@ Content-Type: application/json
 
 {
     "email": "ryanla94@gmail.com",
-    "password": "Password123"
+    "password": "Hellothere2316560!"
 }
 
 ###
@@ -24,37 +24,38 @@ POST http://localhost:3000/portfolio/ HTTP/1.1
 Content-Type: application/json
 
 ###
-GET http://localhost:3000/portfolio/2023ebcc-fde8-437c-be49-efa4b50b475c HTTP/1.1
+GET http://localhost:3000/portfolio/49a09450-b362-490a-b209-e6ba9535d591 HTTP/1.1
 Content-Type: application/json
 
 ###
-DELETE http://localhost:3000/portfolio/2023ebcc-fde8-437c-be49-efa4b50b475c HTTP/1.1
+DELETE http://localhost:3000/portfolio/49a09450-b362-490a-b209-e6ba9535d591 HTTP/1.1
 
 ###
-GET http://localhost:3000/portfolio/2023ebcc-fde8-437c-be49-efa4b50b475c/assets/stocks/ HTTP/1.1
+GET http://localhost:3000/portfolio/b68b526a-5b3c-43d9-b09d-376c9e9c12b9/history HTTP/1.1
 
 ###
-POST http://localhost:3000/portfolio/2023ebcc-fde8-437c-be49-efa4b50b475c/assets/stocks/ HTTP/1.1
+GET http://localhost:3000/portfolio/49a09450-b362-490a-b209-e6ba9535d591/assets/stocks/ HTTP/1.1
+
+###
+POST http://localhost:3000/portfolio/49a09450-b362-490a-b209-e6ba9535d591/assets/stocks/ HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "Amazon.",
-    "ticker": "AAPL",
+    "name": "Amazon",
+    "ticker": "AMZN",
     "quantity": 5
 }
 
 ###
-PATCH http://localhost:3000/portfolio/2023ebcc-fde8-437c-be49-efa4b50b475c/assets/stocks/868a97b3-385f-4007-9a42-852e2ea3fe5d/ HTTP/1.1
+PATCH http://localhost:3000/portfolio/49a09450-b362-490a-b209-e6ba9535d591/assets/stocks/5d0b66b1-a014-49e9-b077-9b42532ac59d/ HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "Apple Inc.",
-    "ticker": "AAPL",
-    "quantity": 8
+    "name": "AMZN",
+    "ticker": "AMZN",
+    "quantity": 10
 }
 
 ###
-DELETE http://localhost:3000/portfolio/2023ebcc-fde8-437c-be49-efa4b50b475c/assets/stocks/868a97b3-385f-4007-9a42-852e2ea3fe5d/ HTTP/1.1
+DELETE http://localhost:3000/portfolio/49a09450-b362-490a-b209-e6ba9535d591/assets/stocks/5d0b66b1-a014-49e9-b077-9b42532ac59d/ HTTP/1.1
 
-###
-GET https://finnhub.io/api/v1/stock/candle?symbol=AAPL&from=1754036950&to=1756718960&token=d2negnhr01qn3vmknsrgd2negnhr01qn3vmknss0 HTTP/1.1

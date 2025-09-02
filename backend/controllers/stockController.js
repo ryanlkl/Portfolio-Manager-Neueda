@@ -1,6 +1,4 @@
 const Stock = require("../models/stocks");
-const axios = require("axios");
-const { FINNHUB_KEY, FINNHUB_URL, MARKETSTACK_URL, MARKETSTACK_KEY } = require("../config");
 const { v4: uuidv4 } = require("uuid");
 const { addTransaction } = require("./transactionController");
 const { savePortfolioSnapshot, saveHistoricalPortfolioSnapshot } = require("../service/portfolioService");
@@ -31,6 +29,7 @@ const getAllStocks = async (req, res) => {
       stock.dataValues.unrealisedPL = (performance.currentPrice - avgCost) * stock.quantity
     }
 
+    console.log("Retrieved stocks")
     res.status(200).json({
       totalValue: await calculatePortfolioTotal(stocks),
       stocks: stocks
@@ -93,16 +92,10 @@ const addStock = async (req, res) => {
 
     // Check ticker existence via Finnhub
     let response;
-    try {
-      response = await axios.get(FINNHUB_URL, {
-        params: { symbol: ticker, token: FINNHUB_KEY }
-      });
-    } catch (apiErr) {
-      return res.status(502).json({ error: "Error reaching ticker data provider." });
-    }
-    const price = response.data?.c ?? null;
-    if (!price || price === 0) {
-      return res.status(404).json({ error: "Ticker not found. Please check the symbol." });
+    const quote = await YahooFinance.quote(ticker);
+    const price = quote?.regularMarketPrice ?? 0;
+    if (isNaN(price)) {
+      return res.status(400).json({ error: "Could not fetch a valid price for this ticker." });
     }
 
     const stock = await Stock.create({
@@ -114,7 +107,7 @@ const addStock = async (req, res) => {
     });
 
     await addTransaction(pid, stock.id, "buy", ticker, qty, price, new Date());
-    await savePortfolioSnapshot(pid);
+  await savePortfolioSnapshot(pid, true);
 
     return res.status(201).json({ message: "Stock added", stockId: stock.id, purchasePrice: price, portfolioId: pid });
   } catch (err) {
@@ -153,7 +146,18 @@ const addHistoricalStock = async (req, res) => {
     const existing = await Stock.findOne({ where: { portfolioId: pid, ticker: ticker } });
     if (existing) {
       existing.update({ quantity: existing.quantity + qty });
-      await addTransaction(pid, existing.id, "buy", ticker, qty, 0, new Date(date));
+    const day = new Date(date)
+    const nextDay = new Date(day)
+    nextDay.setDate(day.getDate() + 1)
+      const history = YahooFinance.historical(ticker, {
+        period1: day,
+        period2: nextDay,
+        interval: "1d"
+      });
+      const price = history?.[0]?.close ?? 0;
+      console.log(history);
+      console.log(price);
+      await addTransaction(pid, existing.id, "buy", ticker, qty, price, new Date(date));
       await saveHistoricalPortfolioSnapshot(pid, date);
       return res.status(200).json({ message: "Stock quantity updated", stockId: existing.id, portfolioId: pid });
     }
@@ -161,13 +165,17 @@ const addHistoricalStock = async (req, res) => {
     // Check ticker existence via Finnhub
     let response;
     // Get historical price from Yahoo Finance
+    const day = new Date(date)
+    const nextDay = new Date(day)
+    nextDay.setDate(day.getDate() + 1)
     const history = await YahooFinance.historical(ticker, {
-      period1: date,
-      perfiod2: date,
+      period1: day,
+      period2: nextDay,
+      interval: "1d"
     })
 
     console.log("HIST: ", history);
-    const price = history?.[0]?.close ?? null;
+    const price = history?.[0]?.close ?? 0;
     console.log("PRICE: ", price);
 
     const stock = await Stock.create({
@@ -228,14 +236,10 @@ const updateStock = async (req, res) => {
     }
 
     // Get current price
-    let price = null;
-    try {
-      const response = await axios.get(FINNHUB_URL, {
-        params: { symbol: existingStock.ticker, token: FINNHUB_KEY }
-      });
-      price = response.data?.c ?? null;
-    } catch (apiErr) {
-      return res.status(502).json({ error: "Error reaching ticker data provider." });
+    const quote = await YahooFinance.quote(existingStock.ticker);
+    const price = quote?.regularMarketPrice ?? 0;
+    if (isNaN(price)) {
+      return res.status(400).json({ error: "Could not fetch a valid price for this ticker." });
     }
 
     const [updated] = await Stock.update(
@@ -268,18 +272,22 @@ const deleteStock = async (req, res) => {
     
     const quantity = existingStock.quantity;
 
-    const response = await axios.get(FINNHUB_URL, {
-      params: { symbol: existingStock.ticker, token: FINNHUB_KEY }
-    });
-
-    const price = response.data?.c ?? null; // c is the current price
-
+    const quote = await YahooFinance.quote(existingStock.ticker);
+    const price = quote?.regularMarketPrice ?? 0;
+    if (isNaN(price)) {
+      return res.status(400).json({ error: "Could not fetch a valid price for this ticker." });
+    }
     await addTransaction(pid, id, "sell", existingStock.ticker, quantity, price, new Date());
-    await savePortfolioSnapshot(pid)
 
+    // Delete the stock
     const deleted = await Stock.destroy({ where: { id: req.params.id } });
     if (!deleted) return res.status(404).json({ error: "Stock not found" });
-    res.json({ message: "Stock deleted" });
+
+    // Recalculate all portfolio snapshots from today onward
+    const { saveHistoricalPortfolioSnapshot } = require("../service/portfolioService");
+    await saveHistoricalPortfolioSnapshot(pid, new Date());
+
+    res.json({ message: "Stock deleted and portfolio history updated" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error in database" });
